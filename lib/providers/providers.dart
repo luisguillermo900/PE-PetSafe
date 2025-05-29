@@ -1,7 +1,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../models/user_model.dart';
 import '../viewmodels/login_viewmodel.dart';
 import '../viewmodels/home_viewmodel.dart';
 import '../viewmodels/temperatura_viewmodel.dart';
+import '../viewmodels/user_viewmodel.dart';
 
 final loginProvider = StateNotifierProvider<LoginViewModel, LoginState>(
   (ref) => LoginViewModel(),
@@ -14,4 +16,8 @@ final homeProvider = StateNotifierProvider<HomeViewModel, int>(
 final temperaturaProvider =
     StateNotifierProvider<TemperaturaViewModel, TemperaturaState>(
   (ref) => TemperaturaViewModel(),
+);
+
+final userProvider = StateNotifierProvider<UserViewModel, UserModel>(
+  (ref) => UserViewModel(),
 );
