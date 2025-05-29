@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../models/user_model.dart';
 import '../../providers/providers.dart';
 import '../temperatura/temperatura_view.dart';
+import '../historial/historial_view.dart';
 
 class HomeView extends ConsumerWidget {
   const HomeView({super.key});
@@ -201,7 +202,7 @@ class HomeView extends ConsumerWidget {
       ),
       const TemperaturaView(),
       const Center(child: Text("Mapa")),
-      const Center(child: Text("Historial")),
+      const HistorialView(),
     ];
 
     return Scaffold(
@@ -224,10 +225,7 @@ class HomeView extends ConsumerWidget {
             label: "Temperatura",
           ),
           BottomNavigationBarItem(icon: Icon(Icons.map), label: "Mapa"),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.history),
-            label: "Historial",
-          ),
+          BottomNavigationBarItem(icon: Icon(Icons.history),label: "Historial"),
         ],
       ),
     );
