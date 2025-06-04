@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../models/user_model.dart';
 import '../../providers/providers.dart';
+import '../../viewmodels/temperatura_viewmodel.dart';
 import '../temperatura/temperatura_view.dart';
-import '../historial/historial_view.dart';
+import '../ubicacion/ubicacion_view.dart';
+import '../calendario/calendario_view.dart';
 
 class HomeView extends ConsumerWidget {
   const HomeView({super.key});
@@ -11,221 +13,202 @@ class HomeView extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final index = ref.watch(homeProvider);
-    final vm = ref.read(homeProvider.notifier);
-    //final user = ref.watch(userProvider);
-
-    Future.microtask(() {
-      final user = UserModel(
-        id: '1',
-        username: 'William',
-        email: 'jack@example.com',
-      );
-      ref.read(userProvider.notifier).updateUser(user);
-    });
-
+    final homeVM = ref.read(homeProvider.notifier);
+    final temperatura = ref.watch(temperaturaProvider);
     final user = ref.watch(userProvider);
-  
+
     final List<Widget> vistas = [
-      SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Encabezado del usuario
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: const Color(0xFF508C9B),
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Row(
-                children: [
-                  const CircleAvatar(
-                    radius: 30,
-                    backgroundColor: Colors.black12,
-                    child: Icon(Icons.person, size: 40),
-                  ),
-                  const SizedBox(width: 16),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        "Bienvenido",
-                        style: TextStyle(color: Colors.white, fontSize: 12),
-                      ),
-                      Text(
-                        user.username,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 18,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 24),
+      _buildHomeContent(context, ref, temperatura, user),
+      const UbicacionView(),
+      const TemperaturaView(),
+      const CalendarioView(),
+    ];
 
-            // Sección de widgets
-            const Text(
-              "widgets",
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 12),
+    return Scaffold(
+      backgroundColor: const Color(0xFF0F5C94),
+      body: vistas[index],
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: index,
+        onTap: homeVM.changeTab,
+        backgroundColor: const Color(0xFF001E5A),
+        selectedItemColor: Colors.white,
+        unselectedItemColor: Colors.white70,
+        type: BottomNavigationBarType.fixed,
+        items: const [
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
+          BottomNavigationBarItem(icon: Icon(Icons.location_on), label: "Ubicación"),
+          BottomNavigationBarItem(icon: Icon(Icons.thermostat), label: "Temperatura"),
+          BottomNavigationBarItem(icon: Icon(Icons.calendar_month), label: "Calendario"),
+        ],
+      ),
+    );
+  }
 
-            Row(
+  Widget _buildHomeContent(
+    BuildContext context,
+    WidgetRef ref,
+    TemperaturaState temperatura,
+    UserModel user,
+  ) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Encabezado Home
+          Padding(
+            padding: const EdgeInsets.only(top: 40, bottom: 20),
+            child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Column(
-                  children: [
-                    Container(
-                      height: 100,
-                      width: 100,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFB4CDD3),
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      child: const Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              Icons.location_on,
-                              size: 30,
-                              color: Color.fromARGB(255, 255, 65, 7),
-                            ),
-                            SizedBox(height: 8),
-                          ],
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    const Text(
-                      "Ubicacion",
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                  ],
+                const Text(
+                  "Home",
+                  style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
                 ),
-                Column(
-                  children: [
-                    Container(
-                      height: 100,
-                      width: 100,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFB4CDD3),
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      child: const Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              Icons.cloud,
-                              size: 30,
-                              color: Color.fromARGB(255, 9, 170, 182),
-                            ),
-                            SizedBox(height: 8),
-                            Text("25 °C"),
-                          ],
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    const Text(
-                      "Temperatura",
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                  ],
-                ),
-                Column(
-                  children: [
-                    Container(
-                      height: 100,
-                      width: 100,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFB4CDD3),
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      child: const Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              Icons.wb_sunny,
-                              size: 30,
-                              color: Color.fromARGB(255, 255, 202, 43),
-                            ),
-                            SizedBox(height: 8),
-                          ],
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    const Text(
-                      "Iluminacion",
-                      style: TextStyle(fontWeight: FontWeight.bold),
+                PopupMenuButton<String>(
+                  onSelected: (value) {
+                    if (value == 'logout' && context.mounted) {
+                      Navigator.pushReplacementNamed(context, '/login');
+                    }
+                  },
+                  color: Colors.white,
+                  child: const Text("mas", style: TextStyle(color: Colors.white, fontSize: 16)),
+                  itemBuilder: (context) => const [
+                    PopupMenuItem<String>(
+                      value: 'logout',
+                      child: Text("Cerrar sesión"),
                     ),
                   ],
                 ),
               ],
             ),
+          ),
 
-            const SizedBox(height: 32),
-
-            // Sección de historial
-            const Text(
-              "Historial",
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          // Usuario
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.blue.shade700,
+              borderRadius: BorderRadius.circular(20),
             ),
-            const SizedBox(height: 12),
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(vertical: 24),
-              decoration: BoxDecoration(
-                color: Colors.grey.shade600,
-                borderRadius: BorderRadius.circular(20),
+            child: Row(
+              children: [
+                const CircleAvatar(
+                  backgroundImage: AssetImage('assets/perfil.jpeg'),
+                  radius: 30,
+                ),
+                const SizedBox(width: 16),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(user.username, style: const TextStyle(color: Colors.white, fontSize: 18)),
+                    const Text("Bienvenido, Luis G.!", style: TextStyle(color: Colors.white70)),
+                  ],
+                ),
+              ],
+            ),
+          ),
+
+          const SizedBox(height: 24),
+          const Text("Widgets", style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 16),
+
+          // Widgets
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              _widgetCard(
+                context,
+                label: "Ubicación",
+                icon: null,
+                imagePath: 'assets/mapa_demo.png',
+                onTap: () => ref.read(homeProvider.notifier).state = 1,
               ),
-              child: const Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.cloud, size: 40, color: Colors.white),
-                  SizedBox(height: 12),
-                  Text("Temperatura", style: TextStyle(color: Colors.white)),
-                  Text("Mapa", style: TextStyle(color: Colors.white)),
-                  Text("Iluminacion", style: TextStyle(color: Colors.white)),
-                ],
+              _widgetCard(
+                context,
+                label: "${temperatura.temperatura} °C",
+                icon: Icons.wb_cloudy,
+                onTap: () => ref.read(homeProvider.notifier).state = 2,
               ),
+              _widgetCard(
+                context,
+                label: temperatura.calefaccionActiva || temperatura.modoAutomatico ? "Activado" : "Apagado",
+                icon: Icons.lightbulb,
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 24),
+          const Text("Resumen", style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 12),
+
+          _historialItem(icon: Icons.thermostat, titulo: "Temperatura", subtitulo: "30°C"),
+          _historialItem(icon: Icons.location_on, titulo: "Ubicación", subtitulo: "30 minutos en el parque"),
+        ],
+      ),
+    );
+  }
+
+  Widget _widgetCard(
+    BuildContext context, {
+    required String label,
+    IconData? icon,
+    String? imagePath,
+    VoidCallback? onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: 100,
+        height: 100,
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          color: Colors.white.withOpacity(0.15),
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            if (imagePath != null)
+              ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child: Image.asset(imagePath, height: 40, fit: BoxFit.cover),
+              ),
+            if (icon != null)
+              Icon(icon, color: Colors.white, size: 30),
+            const SizedBox(height: 8),
+            Text(
+              label,
+              textAlign: TextAlign.center,
+              style: const TextStyle(color: Colors.white, fontSize: 12),
             ),
           ],
         ),
       ),
-      const TemperaturaView(),
-      const Center(child: Text("Mapa")),
-      const HistorialView(),
-    ];
+    );
+  }
 
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: const Color(0xFF134B70),
-        title: const Text("PetSafe"),
+  Widget _historialItem({required IconData icon, required String titulo, required String subtitulo}) {
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 6),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(16),
       ),
-      body: vistas[index],
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: index,
-        onTap: vm.changeTab,
-        backgroundColor: const Color(0xFF508C9B),
-        selectedItemColor: Colors.white,
-        unselectedItemColor: Colors.black54,
-        type: BottomNavigationBarType.fixed,
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: "Inicio"),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.thermostat),
-            label: "Temperatura",
+      child: Row(
+        children: [
+          Icon(icon, color: Colors.white),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(titulo, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                Text(subtitulo, style: const TextStyle(color: Colors.white70, fontSize: 12)),
+              ],
+            ),
           ),
-          BottomNavigationBarItem(icon: Icon(Icons.map), label: "Mapa"),
-          BottomNavigationBarItem(icon: Icon(Icons.history),label: "Historial"),
         ],
       ),
     );

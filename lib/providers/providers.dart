@@ -5,6 +5,7 @@ import '../viewmodels/home_viewmodel.dart';
 import '../viewmodels/temperatura_viewmodel.dart';
 import '../viewmodels/user_viewmodel.dart';
 import '../viewmodels/historial_viewmodel.dart';
+import '../viewmodels/calendario_viewmodel.dart';
 
 
 final loginProvider = StateNotifierProvider<LoginViewModel, LoginState>(
@@ -26,4 +27,8 @@ final userProvider = StateNotifierProvider<UserViewModel, UserModel>(
 
 final historialProvider = StateNotifierProvider<HistorialViewModel, HistorialState>(
   (ref) => HistorialViewModel(),
+);
+
+final calendarioProvider = StateNotifierProvider<CalendarioViewModel, CalendarioState>(
+  (ref) => CalendarioViewModel(),
 );

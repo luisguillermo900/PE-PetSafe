@@ -29,7 +29,7 @@ class HistorialViewModel extends StateNotifier<HistorialState> {
 
   void cargarHistorial() async {
     state = state.copyWith(isLoading: true);
-    await Future.delayed(const Duration(seconds: 1)); // Simula carga
+    await Future.delayed(const Duration(seconds: 1)); 
     state = state.copyWith(
       historial: [
         HistorialItem(
@@ -53,7 +53,6 @@ class HistorialViewModel extends StateNotifier<HistorialState> {
     );
   }
 
-  // Ejemplo de otro método que cambia el estado
   void limpiarHistorial() {
     state = state.copyWith(historial: []);
   }

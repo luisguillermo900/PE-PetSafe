@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../views/login/login_view.dart';
+import '../views/home/home_view.dart';
 
 class App extends StatelessWidget {
   const App({super.key});
@@ -9,7 +10,11 @@ class App extends StatelessWidget {
     return MaterialApp(
       title: 'PetSafe',
       debugShowCheckedModeBanner: false,
-      home: const LoginView(),
+      initialRoute: '/login',
+      routes: {
+        '/login': (_) => const LoginView(),
+        '/home': (_) => const HomeView(),
+      },
     );
   }
 }
