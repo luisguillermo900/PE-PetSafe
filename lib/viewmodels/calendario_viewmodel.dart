@@ -6,6 +6,16 @@ class CalendarioState {
   final bool isLoading;
 
   CalendarioState({required this.eventos, this.isLoading = false});
+
+  CalendarioState copyWith({
+    List<EventoModel>? eventos,
+    bool? isLoading,
+  }) {
+    return CalendarioState(
+      eventos: eventos ?? this.eventos,
+      isLoading: isLoading ?? this.isLoading,
+    );
+  }
 }
 
 class CalendarioViewModel extends StateNotifier<CalendarioState> {
@@ -13,15 +23,32 @@ class CalendarioViewModel extends StateNotifier<CalendarioState> {
     cargarEventos();
   }
 
-  void cargarEventos() {
-    state = CalendarioState(isLoading: true, eventos: []);
-    state = CalendarioState(
+  void cargarEventos() async {
+    state = state.copyWith(isLoading: true);
+    await Future.delayed(const Duration(milliseconds: 500)); 
+    state = state.copyWith(
       isLoading: false,
       eventos: [
-        EventoModel("Paseo", "30 minutos en el parque", "28/05/2025"),
-        EventoModel("Veterinario", "Vacuna anual aplicada", "27/05/2025"),
-        EventoModel("Alimentación", "Comida especial para dieta", "26/05/2025"),
-        EventoModel("Baño", "Baño y corte de uñas", "25/05/2025"),
+        EventoModel(
+          titulo: "Paseo",
+          descripcion: "30 minutos en el parque",
+          fecha: "28/05/2025",
+        ),
+        EventoModel(
+          titulo: "Veterinario",
+          descripcion: "Vacuna anual aplicada",
+          fecha: "27/05/2025",
+        ),
+        EventoModel(
+          titulo: "Alimentación",
+          descripcion: "Comida especial para dieta",
+          fecha: "26/05/2025",
+        ),
+        EventoModel(
+          titulo: "Baño",
+          descripcion: "Baño y corte de uñas",
+          fecha: "25/05/2025",
+        ),
       ],
     );
   }

@@ -3,5 +3,9 @@ class EventoModel {
   final String descripcion;
   final String fecha;
 
-  EventoModel(this.titulo, this.descripcion, this.fecha);
+  EventoModel({
+    required this.titulo,
+    required this.descripcion,
+    required this.fecha,
+  });
 }
