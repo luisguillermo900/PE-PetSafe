@@ -6,6 +6,8 @@ import '../../viewmodels/temperatura_viewmodel.dart';
 import '../temperatura/temperatura_view.dart';
 import '../ubicacion/ubicacion_view.dart';
 import '../calendario/calendario_view.dart';
+import '../ventilacion/ventilacion_view.dart';
+import '../iluminacion/iluminacion_view.dart';
 
 class HomeView extends ConsumerWidget {
   const HomeView({super.key});
@@ -19,8 +21,10 @@ class HomeView extends ConsumerWidget {
 
     final List<Widget> vistas = [
       _buildHomeContent(context, ref, temperatura, user),
-      const UbicacionView(),
+
       const TemperaturaView(),
+      const IluminacionView(),
+      const VentilacionView(),
       const CalendarioView(),
     ];
 
@@ -36,9 +40,19 @@ class HomeView extends ConsumerWidget {
         type: BottomNavigationBarType.fixed,
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
-          BottomNavigationBarItem(icon: Icon(Icons.location_on), label: "Ubicación"),
-          BottomNavigationBarItem(icon: Icon(Icons.thermostat), label: "Temperatura"),
-          BottomNavigationBarItem(icon: Icon(Icons.calendar_month), label: "Calendario"),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.thermostat),
+            label: "Temperatura",
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.lightbulb_outline),
+            label: "Luz",
+          ),
+          BottomNavigationBarItem(icon: Icon(Icons.air), label: "Ventilación"),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.calendar_month),
+            label: "Calendario",
+          ),
         ],
       ),
     );
@@ -63,7 +77,11 @@ class HomeView extends ConsumerWidget {
               children: [
                 const Text(
                   "Home",
-                  style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 PopupMenuButton<String>(
                   onSelected: (value) {
@@ -72,13 +90,17 @@ class HomeView extends ConsumerWidget {
                     }
                   },
                   color: Colors.white,
-                  child: const Text("mas", style: TextStyle(color: Colors.white, fontSize: 16)),
-                  itemBuilder: (context) => const [
-                    PopupMenuItem<String>(
-                      value: 'logout',
-                      child: Text("Cerrar sesión"),
-                    ),
-                  ],
+                  child: const Text(
+                    "mas",
+                    style: TextStyle(color: Colors.white, fontSize: 16),
+                  ),
+                  itemBuilder:
+                      (context) => const [
+                        PopupMenuItem<String>(
+                          value: 'logout',
+                          child: Text("Cerrar sesión"),
+                        ),
+                      ],
                 ),
               ],
             ),
@@ -101,8 +123,14 @@ class HomeView extends ConsumerWidget {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(user.username, style: const TextStyle(color: Colors.white, fontSize: 18)),
-                    const Text("Bienvenido, Luis G.!", style: TextStyle(color: Colors.white70)),
+                    Text(
+                      user.username,
+                      style: const TextStyle(color: Colors.white, fontSize: 18),
+                    ),
+                    const Text(
+                      "Bienvenido, Luis G.!",
+                      style: TextStyle(color: Colors.white70),
+                    ),
                   ],
                 ),
               ],
@@ -110,7 +138,14 @@ class HomeView extends ConsumerWidget {
           ),
 
           const SizedBox(height: 24),
-          const Text("Widgets", style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+          const Text(
+            "Widgets",
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
           const SizedBox(height: 16),
 
           // Widgets
@@ -132,18 +167,36 @@ class HomeView extends ConsumerWidget {
               ),
               _widgetCard(
                 context,
-                label: temperatura.calefaccionActiva || temperatura.modoAutomatico ? "Activado" : "Apagado",
+                label:
+                    temperatura.calefaccionActiva || temperatura.modoAutomatico
+                        ? "Activado"
+                        : "Apagado",
                 icon: Icons.lightbulb,
               ),
             ],
           ),
 
           const SizedBox(height: 24),
-          const Text("Resumen", style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+          const Text(
+            "Resumen",
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
           const SizedBox(height: 12),
 
-          _historialItem(icon: Icons.thermostat, titulo: "Temperatura", subtitulo: "30°C"),
-          _historialItem(icon: Icons.location_on, titulo: "Ubicación", subtitulo: "30 minutos en el parque"),
+          _historialItem(
+            icon: Icons.thermostat,
+            titulo: "Temperatura",
+            subtitulo: "30°C",
+          ),
+          _historialItem(
+            icon: Icons.location_on,
+            titulo: "Ubicación",
+            subtitulo: "30 minutos en el parque",
+          ),
         ],
       ),
     );
@@ -174,8 +227,7 @@ class HomeView extends ConsumerWidget {
                 borderRadius: BorderRadius.circular(8),
                 child: Image.asset(imagePath, height: 40, fit: BoxFit.cover),
               ),
-            if (icon != null)
-              Icon(icon, color: Colors.white, size: 30),
+            if (icon != null) Icon(icon, color: Colors.white, size: 30),
             const SizedBox(height: 8),
             Text(
               label,
@@ -188,7 +240,11 @@ class HomeView extends ConsumerWidget {
     );
   }
 
-  Widget _historialItem({required IconData icon, required String titulo, required String subtitulo}) {
+  Widget _historialItem({
+    required IconData icon,
+    required String titulo,
+    required String subtitulo,
+  }) {
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 6),
       padding: const EdgeInsets.all(12),
@@ -204,8 +260,17 @@ class HomeView extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(titulo, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                Text(subtitulo, style: const TextStyle(color: Colors.white70, fontSize: 12)),
+                Text(
+                  titulo,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                Text(
+                  subtitulo,
+                  style: const TextStyle(color: Colors.white70, fontSize: 12),
+                ),
               ],
             ),
           ),

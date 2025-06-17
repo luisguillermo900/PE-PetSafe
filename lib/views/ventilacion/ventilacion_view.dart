@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../providers/providers.dart';
 
-class TemperaturaView extends ConsumerWidget {
-  const TemperaturaView({super.key});
+class VentilacionView extends ConsumerWidget {
+  const VentilacionView({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final temperaturaState = ref.watch(temperaturaProvider);
-    final viewModel = ref.read(temperaturaProvider.notifier);
+    final estado = ref.watch(ventilacionProvider);
+    final vm = ref.read(ventilacionProvider.notifier);
 
     return Scaffold(
       backgroundColor: const Color(0xFF0F5C94),
@@ -23,7 +23,7 @@ class TemperaturaView extends ConsumerWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   const Text(
-                    "Sensor Ambiental",
+                    "Ventilación",
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 20,
@@ -53,7 +53,7 @@ class TemperaturaView extends ConsumerWidget {
               ),
               const SizedBox(height: 30),
 
-              // Sensor principal
+              // Estado visual del ventilador
               Center(
                 child: Container(
                   width: 200,
@@ -65,25 +65,15 @@ class TemperaturaView extends ConsumerWidget {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Icon(
-                        Icons.thermostat,
-                        size: 60,
-                        color: Colors.white,
-                      ),
+                      const Icon(Icons.air, size: 60, color: Colors.white),
                       const SizedBox(height: 12),
                       Text(
-                        "${temperaturaState.temperatura} °C",
+                        estado.ventiladorActivo
+                            ? "Ventilación Activa"
+                            : "Ventilación Apagada",
                         style: const TextStyle(
                           color: Colors.white,
-                          fontSize: 28,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        "Humedad: ${temperaturaState.humedad} %",
-                        style: const TextStyle(
-                          color: Colors.white70,
-                          fontSize: 18,
+                          fontSize: 20,
                         ),
                       ),
                     ],
@@ -93,10 +83,10 @@ class TemperaturaView extends ConsumerWidget {
 
               const SizedBox(height: 30),
 
-              // Botón calefacción
+              // Botón activar/desactivar
               Center(
                 child: ElevatedButton(
-                  onPressed: viewModel.toggleCalefaccion,
+                  onPressed: vm.toggleVentilador,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.red,
                     minimumSize: const Size(200, 48),
@@ -105,9 +95,9 @@ class TemperaturaView extends ConsumerWidget {
                     ),
                   ),
                   child: Text(
-                    temperaturaState.calefaccionActiva
-                        ? "Desactivar Calefacción"
-                        : "Activar Calefacción",
+                    estado.ventiladorActivo
+                        ? "Apagar Ventilador"
+                        : "Encender Ventilador",
                     style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
                 ),
@@ -118,7 +108,7 @@ class TemperaturaView extends ConsumerWidget {
               // Botón automático
               Center(
                 child: ElevatedButton(
-                  onPressed: viewModel.activarModoAutomatico,
+                  onPressed: vm.activarModoAutomatico,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF4CA6FF),
                     minimumSize: const Size(200, 48),
@@ -126,7 +116,7 @@ class TemperaturaView extends ConsumerWidget {
                       borderRadius: BorderRadius.circular(20),
                     ),
                   ),
-                  child: const Text("Calefacción Automática"),
+                  child: const Text("Modo Automático"),
                 ),
               ),
 
@@ -155,11 +145,11 @@ class TemperaturaView extends ConsumerWidget {
                           ),
                         ),
                         Text(
-                          temperaturaState.modoAutomatico
-                              ? "Calefacción automática activada"
-                              : temperaturaState.calefaccionActiva
-                              ? "Calefacción activada manualmente"
-                              : "Calefacción desactivada",
+                          estado.modoAutomatico
+                              ? "Modo automático activado"
+                              : estado.ventiladorActivo
+                              ? "Ventilación manual activada"
+                              : "Ventilador apagado",
                           style: const TextStyle(color: Colors.white70),
                         ),
                       ],

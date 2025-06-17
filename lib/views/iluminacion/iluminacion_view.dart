@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../providers/providers.dart';
 
-class TemperaturaView extends ConsumerWidget {
-  const TemperaturaView({super.key});
+class IluminacionView extends ConsumerWidget {
+  const IluminacionView({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final temperaturaState = ref.watch(temperaturaProvider);
-    final viewModel = ref.read(temperaturaProvider.notifier);
+    final estado = ref.watch(iluminacionProvider);
+    final vm = ref.read(iluminacionProvider.notifier);
 
     return Scaffold(
       backgroundColor: const Color(0xFF0F5C94),
@@ -18,12 +18,12 @@ class TemperaturaView extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Título y menú
+              // Título
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   const Text(
-                    "Sensor Ambiental",
+                    "Iluminación",
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 20,
@@ -53,7 +53,7 @@ class TemperaturaView extends ConsumerWidget {
               ),
               const SizedBox(height: 30),
 
-              // Sensor principal
+              // Icono luz
               Center(
                 child: Container(
                   width: 200,
@@ -65,25 +65,19 @@ class TemperaturaView extends ConsumerWidget {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Icon(
-                        Icons.thermostat,
+                      Icon(
+                        estado.luzActiva
+                            ? Icons.lightbulb
+                            : Icons.lightbulb_outline,
                         size: 60,
                         color: Colors.white,
                       ),
                       const SizedBox(height: 12),
                       Text(
-                        "${temperaturaState.temperatura} °C",
+                        estado.luzActiva ? "Luz Encendida" : "Luz Apagada",
                         style: const TextStyle(
                           color: Colors.white,
-                          fontSize: 28,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        "Humedad: ${temperaturaState.humedad} %",
-                        style: const TextStyle(
-                          color: Colors.white70,
-                          fontSize: 18,
+                          fontSize: 20,
                         ),
                       ),
                     ],
@@ -93,21 +87,19 @@ class TemperaturaView extends ConsumerWidget {
 
               const SizedBox(height: 30),
 
-              // Botón calefacción
+              // Botón encender/apagar
               Center(
                 child: ElevatedButton(
-                  onPressed: viewModel.toggleCalefaccion,
+                  onPressed: vm.toggleLuz,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.red,
+                    backgroundColor: Colors.yellow.shade700,
                     minimumSize: const Size(200, 48),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(20),
                     ),
                   ),
                   child: Text(
-                    temperaturaState.calefaccionActiva
-                        ? "Desactivar Calefacción"
-                        : "Activar Calefacción",
+                    estado.luzActiva ? "Apagar Luz" : "Encender Luz",
                     style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
                 ),
@@ -118,7 +110,7 @@ class TemperaturaView extends ConsumerWidget {
               // Botón automático
               Center(
                 child: ElevatedButton(
-                  onPressed: viewModel.activarModoAutomatico,
+                  onPressed: vm.activarModoAutomatico,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF4CA6FF),
                     minimumSize: const Size(200, 48),
@@ -126,13 +118,13 @@ class TemperaturaView extends ConsumerWidget {
                       borderRadius: BorderRadius.circular(20),
                     ),
                   ),
-                  child: const Text("Calefacción Automática"),
+                  child: const Text("Modo Automático"),
                 ),
               ),
 
               const SizedBox(height: 30),
 
-              // Resumen
+              // Estado
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.all(16),
@@ -155,11 +147,11 @@ class TemperaturaView extends ConsumerWidget {
                           ),
                         ),
                         Text(
-                          temperaturaState.modoAutomatico
-                              ? "Calefacción automática activada"
-                              : temperaturaState.calefaccionActiva
-                              ? "Calefacción activada manualmente"
-                              : "Calefacción desactivada",
+                          estado.modoAutomatico
+                              ? "Modo automático activado"
+                              : estado.luzActiva
+                              ? "Luz encendida manualmente"
+                              : "Luz apagada",
                           style: const TextStyle(color: Colors.white70),
                         ),
                       ],
