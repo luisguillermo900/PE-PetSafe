@@ -1,4 +1,6 @@
+import 'dart:convert';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:http/http.dart' as http;
 
 class TemperaturaState {
   final int temperatura;
@@ -39,26 +41,62 @@ class TemperaturaViewModel extends StateNotifier<TemperaturaState> {
         ),
       );
 
-  void toggleCalefaccion() {
+  final String _baseUrl = 'https://petsafe-78c00-default-rtdb.firebaseio.com';
+
+  Future<void> toggleCalefaccion() async {
+    final nuevoEstado = !state.calefaccionActiva;
     state = state.copyWith(
-      calefaccionActiva: !state.calefaccionActiva,
+      calefaccionActiva: nuevoEstado,
       modoAutomatico: false,
     );
+
+    final comando = {
+      "accion": nuevoEstado ? "encender" : "apagar",
+      "dispositivoId": "dispositivoIdActuador2",
+      "ejecutadoPor": "usuarioId1",
+      "estado": "pendiente",
+      "timestamp": DateTime.now().millisecondsSinceEpoch,
+    };
+
+    await _enviarComandoAFirebase(comando);
   }
 
-  void activarModoAutomatico() {
+  Future<void> activarModoAutomatico() async {
     state = state.copyWith(
       modoAutomatico: true,
       calefaccionActiva: false,
       temperatura: 28,
     );
+
+    final comando = {
+      "accion": "modo_automatico",
+      "dispositivoId": "dispositivoIdActuador2",
+      "ejecutadoPor": "usuarioId1",
+      "estado": "pendiente",
+      "timestamp": DateTime.now().millisecondsSinceEpoch,
+    };
+
+    await _enviarComandoAFirebase(comando);
   }
 
-  void actualizarTemperatura(int nuevaTemp) {
+  Future<void> actualizarTemperatura(int nuevaTemp) async {
     state = state.copyWith(temperatura: nuevaTemp);
   }
 
-  void actualizarHumedad(int nuevaHumedad) {
+  Future<void> actualizarHumedad(int nuevaHumedad) async {
     state = state.copyWith(humedad: nuevaHumedad);
+  }
+
+  Future<void> _enviarComandoAFirebase(Map<String, dynamic> comando) async {
+    final url = Uri.parse('$_baseUrl/comandosActuadores.json');
+    final response = await http.post(
+      url,
+      headers: {"Content-Type": "application/json"},
+      body: jsonEncode(comando),
+    );
+
+    if (response.statusCode != 200) {
+      throw Exception('No se pudo guardar el comando en Firebase');
+    }
   }
 }
