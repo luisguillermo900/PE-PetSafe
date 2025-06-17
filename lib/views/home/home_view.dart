@@ -6,16 +6,37 @@ import '../../viewmodels/temperatura_viewmodel.dart';
 import '../../viewmodels/ventilacion_viewmodel.dart';
 import '../../viewmodels/iluminacion_viewmodel.dart';
 import '../../viewmodels/calendario_viewmodel.dart';
+import '../../services/firebase_service.dart';
 import '../temperatura/temperatura_view.dart';
 import '../ventilacion/ventilacion_view.dart';
 import '../iluminacion/iluminacion_view.dart';
 import '../calendario/calendario_view.dart';
 
-class HomeView extends ConsumerWidget {
+class HomeView extends ConsumerStatefulWidget {
   const HomeView({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<HomeView> createState() => _HomeViewState();
+}
+
+class _HomeViewState extends ConsumerState<HomeView> {
+  List<Map<String, dynamic>> alertas = [];
+
+  @override
+  void initState() {
+    super.initState();
+    cargarAlertasDesdeFirebase();
+  }
+
+  Future<void> cargarAlertasDesdeFirebase() async {
+    final data = await FirebaseService.fetchAlertas();
+    setState(() {
+      alertas = data;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final index = ref.watch(homeProvider);
     final homeVM = ref.read(homeProvider.notifier);
     final temperatura = ref.watch(temperaturaProvider);
@@ -25,7 +46,6 @@ class HomeView extends ConsumerWidget {
     final iluminacionVM = ref.read(iluminacionProvider.notifier);
     final calendario = ref.watch(calendarioProvider);
     final user = ref.watch(userProvider);
-
     final ultimoEvento =
         calendario.eventos.isNotEmpty ? calendario.eventos.first : null;
 
@@ -71,7 +91,6 @@ class HomeView extends ConsumerWidget {
     final List<Widget> vistas = [
       _buildHomeContent(
         context,
-        ref,
         temperatura,
         ventilacion,
         iluminacion,
@@ -116,7 +135,6 @@ class HomeView extends ConsumerWidget {
 
   Widget _buildHomeContent(
     BuildContext context,
-    WidgetRef ref,
     TemperaturaState temperatura,
     VentilacionState ventilacion,
     IluminacionState iluminacion,
@@ -160,136 +178,6 @@ class HomeView extends ConsumerWidget {
                         ),
                       ],
                 ),
-              ],
-            ),
-          ),
-
-          _animatedAlert(
-            child: Column(
-              key: const ValueKey("alertas_multiples"),
-              children: [
-                if (temperatura.temperatura > 30)
-                  _fadeInCard(
-                    key: const ValueKey("alerta_calor"),
-                    child: Container(
-                      margin: const EdgeInsets.only(bottom: 16),
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: Colors.redAccent,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Row(
-                        children: const [
-                          Icon(Icons.warning, color: Colors.white),
-                          SizedBox(width: 12),
-                          Expanded(
-                            child: Text(
-                              "¡Alerta! La temperatura supera los 30°C. Se recomienda activar ventilación.",
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                if (temperatura.temperatura < 15)
-                  _fadeInCard(
-                    key: const ValueKey("alerta_frio"),
-                    child: Container(
-                      margin: const EdgeInsets.only(bottom: 16),
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: Colors.blue.shade700,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Icon(Icons.ac_unit, color: Colors.white),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const Text(
-                                  "¡Alerta! La temperatura es muy baja.",
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                const SizedBox(height: 4),
-                                const Text(
-                                  "Se recomienda encender iluminación o calefacción.",
-                                  style: TextStyle(color: Colors.white70),
-                                ),
-                                const SizedBox(height: 8),
-                                ElevatedButton(
-                                  onPressed: () {
-                                    final iluminacionVM = ref.read(
-                                      iluminacionProvider.notifier,
-                                    );
-                                    iluminacionVM.toggleLuz();
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(
-                                        content: Text(
-                                          "Luz activada manualmente desde la alerta.",
-                                        ),
-                                        backgroundColor: Colors.orange,
-                                        duration: Duration(seconds: 3),
-                                      ),
-                                    );
-                                  },
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.orangeAccent,
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 16,
-                                      vertical: 8,
-                                    ),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
-                                  ),
-                                  child: const Text("Encender Luz"),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                if (temperatura.temperatura >= 15 &&
-                    temperatura.temperatura < 18)
-                  _fadeInCard(
-                    key: const ValueKey("advertencia_frio"),
-                    child: Container(
-                      margin: const EdgeInsets.only(bottom: 16),
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: Colors.amber.shade700,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Row(
-                        children: const [
-                          Icon(Icons.warning_amber, color: Colors.black),
-                          SizedBox(width: 12),
-                          Expanded(
-                            child: Text(
-                              "Advertencia: La temperatura es baja. Considere activar la iluminación.",
-                              style: TextStyle(
-                                color: Colors.black,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
               ],
             ),
           ),
@@ -367,6 +255,53 @@ class HomeView extends ConsumerWidget {
 
           const SizedBox(height: 24),
           const Text(
+            "Alertas",
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 8),
+          ...alertas.map(
+            (alerta) => Container(
+              margin: const EdgeInsets.symmetric(vertical: 6),
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.red.withOpacity(0.2),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Icon(Icons.warning_amber, color: Colors.redAccent),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          alerta['mensaje'],
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          "Tipo: ${alerta['tipo']} | Valor: ${alerta['valorMedido']}",
+                          style: const TextStyle(color: Colors.white70),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+
+          const SizedBox(height: 24),
+          const Text(
             "Agenda",
             style: TextStyle(
               color: Colors.white,
@@ -390,25 +325,6 @@ class HomeView extends ConsumerWidget {
             ),
         ],
       ),
-    );
-  }
-
-  Widget _fadeInCard({required Widget child, Key? key}) {
-    return TweenAnimationBuilder<double>(
-      key: key,
-      tween: Tween(begin: 0.0, end: 1.0),
-      duration: const Duration(milliseconds: 500),
-      builder: (context, value, child) => Opacity(opacity: value, child: child),
-      child: child,
-    );
-  }
-
-  Widget _animatedAlert({required Widget? child}) {
-    return AnimatedSwitcher(
-      duration: const Duration(milliseconds: 500),
-      child: child,
-      switchInCurve: Curves.easeIn,
-      switchOutCurve: Curves.easeOut,
     );
   }
 
