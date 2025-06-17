@@ -31,4 +31,8 @@ class VentilacionViewModel extends StateNotifier<VentilacionState> {
   void activarModoAutomatico() {
     state = state.copyWith(modoAutomatico: true, ventiladorActivo: false);
   }
+
+  void activarVentilador() {
+    state = state.copyWith(ventiladorActivo: true);
+  }
 }

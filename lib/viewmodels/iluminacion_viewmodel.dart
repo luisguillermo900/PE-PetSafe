@@ -25,4 +25,8 @@ class IluminacionViewModel extends StateNotifier<IluminacionState> {
   void activarModoAutomatico() {
     state = state.copyWith(modoAutomatico: true, luzActiva: false);
   }
+
+  void activarLuz() {
+    state = state.copyWith(luzActiva: true);
+  }
 }
