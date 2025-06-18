@@ -34,7 +34,7 @@ class TemperaturaViewModel extends StateNotifier<TemperaturaState> {
   TemperaturaViewModel()
     : super(
         TemperaturaState(
-          temperatura: 25,
+          temperatura: 20,
           humedad: 60,
           calefaccionActiva: false,
           modoAutomatico: false,

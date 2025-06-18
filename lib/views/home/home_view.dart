@@ -5,7 +5,6 @@ import '../../providers/providers.dart';
 import '../../viewmodels/temperatura_viewmodel.dart';
 import '../../viewmodels/ventilacion_viewmodel.dart';
 import '../../viewmodels/iluminacion_viewmodel.dart';
-import '../../viewmodels/calendario_viewmodel.dart';
 import '../../services/firebase_service.dart';
 import '../temperatura/temperatura_view.dart';
 import '../ventilacion/ventilacion_view.dart';
