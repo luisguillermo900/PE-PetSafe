@@ -228,27 +228,34 @@ class _HomeViewState extends ConsumerState<HomeView> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              _widgetCard(
-                context,
-                label:
-                    "${temperatura.temperatura} °C\n${temperatura.humedad}% humedad",
-                icon: Icons.thermostat,
-                onTap: () => ref.read(homeProvider.notifier).state = 1,
-              ),
-              _widgetCard(
-                context,
-                label: iluminacion.luzActiva ? "Luz\nEncendida" : "Luz\nApagada",
-                icon: Icons.lightbulb_outline,
-                onTap: () => ref.read(homeProvider.notifier).state = 2,
-              ),
-              _widgetCard(
-                context,
-                label: ventilacion.ventiladorActivo
-                    ? "Ventilador\nActivo"
-                    : "Ventilador\nApagado",
-                icon: Icons.air,
-                onTap: () => ref.read(homeProvider.notifier).state = 3,
-              ),
+              Expanded(
+      child: _widgetCard(
+        context,
+        label: "${temperatura.temperatura} °C\n${temperatura.humedad}% humedad",
+        icon: Icons.thermostat,
+        onTap: () => ref.read(homeProvider.notifier).state = 1,
+      ),
+    ),
+    SizedBox(width: 8), // opcional, para un poco de espacio horizontal entre cards
+    Expanded(
+      child: _widgetCard(
+        context,
+        label: iluminacion.luzActiva ? "Luz\nEncendida" : "Luz\nApagada",
+        icon: Icons.lightbulb_outline,
+        onTap: () => ref.read(homeProvider.notifier).state = 2,
+      ),
+    ),
+    SizedBox(width: 8),
+    Expanded(
+      child: _widgetCard(
+        context,
+        label: ventilacion.ventiladorActivo
+            ? "Ventilador\nActivo"
+            : "Ventilador\nApagado",
+        icon: Icons.air,
+        onTap: () => ref.read(homeProvider.notifier).state = 3,
+      ),
+    ),
             ],
           ),
 
