@@ -10,7 +10,6 @@ import 'app/app.dart';
 // import 'package:flutter_bloc/flutter_bloc.dart';
 // import 'package:flutter/material.dart';
 
-
 void main() {
   runApp(const ProviderScope(child: App()));
 }

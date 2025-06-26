@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 import '../../models/user_model.dart';
 import '../../providers/providers.dart';
 import '../../viewmodels/temperatura_viewmodel.dart';
@@ -44,9 +45,11 @@ class _HomeViewState extends ConsumerState<HomeView> {
     final iluminacion = ref.watch(iluminacionProvider);
     final iluminacionVM = ref.read(iluminacionProvider.notifier);
     final calendario = ref.watch(calendarioProvider);
+    final calendarioVM = ref.read(calendarioProvider.notifier);
     final user = ref.watch(userProvider);
-    final ultimoEvento =
-        calendario.eventos.isNotEmpty ? calendario.eventos.first : null;
+
+    final hoy = DateTime.now();
+    final eventosHoy = calendarioVM.obtenerEventosDelDia(hoy);
 
     // Automatizaciones
     if (temperatura.temperatura > 30 &&
@@ -94,7 +97,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
         ventilacion,
         iluminacion,
         user,
-        ultimoEvento,
+        eventosHoy,
       ),
       const TemperaturaView(),
       const IluminacionView(),
@@ -138,7 +141,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
     VentilacionState ventilacion,
     IluminacionState iluminacion,
     UserModel user,
-    dynamic ultimoEvento,
+    List eventosHoy,
   ) {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
@@ -169,13 +172,12 @@ class _HomeViewState extends ConsumerState<HomeView> {
                     "mas",
                     style: TextStyle(color: Colors.white, fontSize: 16),
                   ),
-                  itemBuilder:
-                      (context) => const [
-                        PopupMenuItem<String>(
-                          value: 'logout',
-                          child: Text("Cerrar sesión"),
-                        ),
-                      ],
+                  itemBuilder: (context) => const [
+                    PopupMenuItem<String>(
+                      value: 'logout',
+                      child: Text("Cerrar sesión"),
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -226,29 +228,34 @@ class _HomeViewState extends ConsumerState<HomeView> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              _widgetCard(
-                context,
-                label:
-                    "${temperatura.temperatura} °C\n${temperatura.humedad}% humedad",
-                icon: Icons.thermostat,
-                onTap: () => ref.read(homeProvider.notifier).state = 1,
-              ),
-              _widgetCard(
-                context,
-                label:
-                    iluminacion.luzActiva ? "Luz\nEncendida" : "Luz\nApagada",
-                icon: Icons.lightbulb_outline,
-                onTap: () => ref.read(homeProvider.notifier).state = 2,
-              ),
-              _widgetCard(
-                context,
-                label:
-                    ventilacion.ventiladorActivo
-                        ? "Ventilador\nActivo"
-                        : "Ventilador\nApagado",
-                icon: Icons.air,
-                onTap: () => ref.read(homeProvider.notifier).state = 3,
-              ),
+              Expanded(
+      child: _widgetCard(
+        context,
+        label: "${temperatura.temperatura} °C\n${temperatura.humedad}% humedad",
+        icon: Icons.thermostat,
+        onTap: () => ref.read(homeProvider.notifier).state = 1,
+      ),
+    ),
+    SizedBox(width: 8), // opcional, para un poco de espacio horizontal entre cards
+    Expanded(
+      child: _widgetCard(
+        context,
+        label: iluminacion.luzActiva ? "Luz\nEncendida" : "Luz\nApagada",
+        icon: Icons.lightbulb_outline,
+        onTap: () => ref.read(homeProvider.notifier).state = 2,
+      ),
+    ),
+    SizedBox(width: 8),
+    Expanded(
+      child: _widgetCard(
+        context,
+        label: ventilacion.ventiladorActivo
+            ? "Ventilador\nActivo"
+            : "Ventilador\nApagado",
+        icon: Icons.air,
+        onTap: () => ref.read(homeProvider.notifier).state = 3,
+      ),
+    ),
             ],
           ),
 
@@ -310,17 +317,17 @@ class _HomeViewState extends ConsumerState<HomeView> {
           ),
           const SizedBox(height: 12),
 
-          if (ultimoEvento != null)
-            _historialItem(
-              icon: Icons.calendar_today,
-              titulo: ultimoEvento.titulo,
-              subtitulo: "${ultimoEvento.descripcion} - ${ultimoEvento.fecha}",
-            )
+          if (eventosHoy.isNotEmpty)
+            ...eventosHoy.map((evento) => _historialItem(
+                  icon: Icons.calendar_today,
+                  titulo: evento.titulo,
+                  subtitulo: "${evento.descripcion} - ${evento.fecha}",
+                ))
           else
             _historialItem(
               icon: Icons.info_outline,
               titulo: "Sin eventos",
-              subtitulo: "No hay actividades programadas",
+              subtitulo: "No hay actividades programadas hoy",
             ),
         ],
       ),
