@@ -3,6 +3,8 @@
 #define THINGNAME "iotfrontierthing"
 const char WIFI_SSID[] = "HUAWEI nova 5T"; //O HUAWEI nova 5T
 const char WIFI_PASSWORD[] = "1b22a94ab613"; //O 1b22a94ab613
+/*const char WIFI_SSID[] = "Xiaomi_12C8"; //O HUAWEI nova 5T
+const char WIFI_PASSWORD[] = "XMGI2498"; //O 1b22a94ab613*/
 const char AWS_IOT_ENDPOINT[] = "a2advbzdjbayfo-ats.iot.us-east-2.amazonaws.com";
  
 // Amazon Root CA 1
