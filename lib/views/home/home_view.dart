@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
+import 'package:lab04/views/temperatura/temperature_view.dart';
 import '../../models/user_model.dart';
 import '../../providers/providers.dart';
 import '../../viewmodels/temperatura_viewmodel.dart';
@@ -99,7 +99,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
         user,
         eventosHoy,
       ),
-      const TemperaturaView(),
+      const TemperatureView(),
       const IluminacionView(),
       const VentilacionView(),
       const CalendarioView(),
