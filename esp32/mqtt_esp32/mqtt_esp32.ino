@@ -23,6 +23,8 @@ int value = 0;
 float t = 0;
 float h = 0;
 float l = 0;
+bool modoManual = false;
+float umbralLux = 5.0;
  
 // Definiendo el sensor DHT11 y el BH1750
 BH1750 luxometro;
@@ -134,6 +136,11 @@ void loop() {
     serializeJson(doc, datosESP32);
     client.publish(AWS_IOT_SUBSCRIBE_TOPIC, datosESP32);
     Serial.println("Temperatura: " + String(t, 2) + "°C Humedad: " + String(h, 1) + "%");
-    Serial.println("Luminosidad: " + String(l, 1) + "lux");
+    Serial.println("Iluminancia: " + String(l, 1) + "lux");
+    if (!modoManual && l < umbralLux) {
+      digitalWrite(PIN_RELE_1, LOW); // Encender relé
+    } else {
+      digitalWrite(PIN_RELE_1, HIGH);  // Apagar relé
+    }
   }
 }
