@@ -3,11 +3,14 @@
 #include <PubSubClient.h>
 #include <ArduinoJson.h>
 #include <DHT.h>
+#include <BH1750.h>
 #include "secrets.h"
  
 #define PIN_DHT11 4 //Pin del sensor DHT11
 #define PIN_RELE_1 26 //Pin IN1 del relé
 #define PIN_RELE_2 27 //Pin IN2 del relé
+#define PIN_SDA_BH1750 18 //Pin "data" del sensor BH1750
+#define PIN_SCL_BH1750 19 //Pin "clock" del sensor BH1750
 #define DHTTYPE DHT11 // Tipo de sensor
 
 #define AWS_IOT_PUBLISH_TOPIC   "esp32/control_reles"
@@ -17,13 +20,12 @@ long lastMsg = 0;
 char msg[50];
 int value = 0;
 
-float h = 0;
 float t = 0;
-float f = 0;
-float hif = 0;
-float hic = 0;
+float h = 0;
+float l = 0;
  
-// Inicializamos el sensor DHT11
+// Definiendo el sensor DHT11 y el BH1750
+BH1750 luxometro;
 DHT dht(PIN_DHT11, DHTTYPE);
 
 WiFiClientSecure espClient = WiFiClientSecure();
@@ -33,12 +35,14 @@ void setup() {
   // Control de los pines del rele
   pinMode(PIN_RELE_1, OUTPUT);
   pinMode(PIN_RELE_2, OUTPUT);
-  // Rele establecidos como apagado
+  // Reles establecidos como apagado
   digitalWrite(PIN_RELE_1, HIGH);
   digitalWrite(PIN_RELE_2, HIGH);
-  // Inicializamos comunicación serie
+  // Inicializando comunicación serie
   Serial.begin(9600);
-  // Comenzamos el sensor DHT
+  // Inicializando sensor DHT y BH1750
+  Wire.begin(PIN_SDA_BH1750, PIN_SCL_BH1750);
+  luxometro.begin(BH1750::CONTINUOUS_HIGH_RES_MODE);
   dht.begin();
 
   coneccion_wifi();
@@ -121,13 +125,15 @@ void loop() {
     lastMsg = now;
     t = dht.readTemperature();
     h = dht.readHumidity();
+    l = luxometro.readLightLevel();
     StaticJsonDocument<200> doc;
     doc["temperatura"] = String(t, 2);
     doc["humedad"] = String(h, 1);
-    char datosDht11[512];
-    serializeJson(doc, datosDht11);
-    client.publish(AWS_IOT_SUBSCRIBE_TOPIC, datosDht11);
-
+    doc["iluminancia"] = String(l, 1);
+    char datosESP32[512];
+    serializeJson(doc, datosESP32);
+    client.publish(AWS_IOT_SUBSCRIBE_TOPIC, datosESP32);
     Serial.println("Temperatura: " + String(t, 2) + "°C Humedad: " + String(h, 1) + "%");
+    Serial.println("Luminosidad: " + String(l, 1) + "lux");
   }
 }
