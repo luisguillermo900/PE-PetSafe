@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lab04/services/blocs/aws_iot_bloc.dart';
 import 'package:lab04/services/widgets/connect_button.dart';
-import 'package:lab04/services/widgets/message_display_board.dart';
 import 'package:lab04/services/widgets/message_input_bar.dart';
 import 'package:lab04/services/widgets/message_temperature.dart';
 import 'package:lab04/services/widgets/send_formatted_data_button.dart';
@@ -38,7 +37,7 @@ class _TemperaturePageState extends State<TemperaturePage> {
         return Scaffold(
           appBar: AppBar(
             backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-            title: const Text('Aws IoT core demo'),
+            title: const Text('Temperatura'),
           ),
           body: _buildBody(),
         );

@@ -14,6 +14,7 @@ class MessageInputBar extends StatefulWidget {
 
 class _MessageInputBarState extends State<MessageInputBar> {
   final TextEditingController _controller = TextEditingController();
+  bool _luzprendida = false;
 
   @override
   void dispose() {
@@ -38,10 +39,17 @@ class _MessageInputBarState extends State<MessageInputBar> {
           onPressed: () {
             if (_controller.text.isNotEmpty) {
               widget.onSend(_controller.text);
-              _controller.clear();
+              _controller.clear(); 
             }
           },
           child: const Text('Send'),
+        ),
+        ElevatedButton(
+          onPressed: (){
+            _luzprendida ? widget.onSend("off") : widget.onSend("on");
+            _luzprendida = !_luzprendida;
+          },
+          child: _luzprendida ? const Text('Off') : const Text('On'),
         ),
       ],
     );
