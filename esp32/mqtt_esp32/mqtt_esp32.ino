@@ -1,3 +1,26 @@
+/*
+**MENSAJES JSON
+configuracion umbrales
+{
+  "umbralIluminancia": float,
+  "umbralTemperatura": float,
+}
+control reles
+{
+  "iluminacionManual": true/false,
+  "ventilacionManual": true/false,
+  "ventilacionEncendida": true/false,
+  "iluminacionEncendida": true/false,
+}
+
+mensajes de cambio de estado
+{
+  "dispositivo": iluminacion/ventilacion,
+  "estado": enciendido/apagado,
+  "hora y fecha": dd/mm/aa hh:mm,
+}
+*/
+
 #include <WiFi.h>
 #include <WiFiClientSecure.h>
 #include <PubSubClient.h>
@@ -13,8 +36,10 @@
 #define PIN_SCL_BH1750 19 //Pin "clock" del sensor BH1750
 #define DHTTYPE DHT11 // Tipo de sensor
 
-#define AWS_IOT_PUBLISH_TOPIC   "esp32/control_reles"
-#define AWS_IOT_SUBSCRIBE_TOPIC "esp32/datos_esp32"
+#define AWS_IOT_PUBLISH_TOPIC_RELAY_CONTROL "esp32/control_reles"
+#define AWS_IOT_PUBLISH_TOPIC_THRESHOLD_CONTROL "esp32/config_umbrales"
+#define AWS_IOT_SUBSCRIBE_TOPIC_ESP_DATA "esp32/datos_esp32"
+#define AWS_IOT_SUBSCRIBE_TOPIC_RELAY_STATUS "esp32/estado_reles"
 
 long lastMsg = 0;
 char msg[50];
@@ -24,6 +49,8 @@ float t = 0;
 float h = 0;
 float l = 0;
 bool modoManual = false;
+bool rele1Encendido = false;
+bool rele2Encendido = false;
 float umbralLux = 5.0;
  
 // Definiendo el sensor DHT11 y el BH1750
@@ -40,6 +67,8 @@ void setup() {
   // Reles establecidos como apagado
   digitalWrite(PIN_RELE_1, HIGH);
   digitalWrite(PIN_RELE_2, HIGH);
+  rele1Encendido = false;
+  rele1Encendido = false;
   // Inicializando comunicación serie
   Serial.begin(9600);
   // Inicializando sensor DHT y BH1750
@@ -55,6 +84,16 @@ void setup() {
   client.setCallback(callback);
 }
 
+String obtenerTiempo() {
+  struct tm timeinfo;
+  if (!getLocalTime(&timeinfo)) {
+    return "00/00/00 00:00:00";  // fallback
+  }
+  char buffer[25];
+  strftime(buffer, sizeof(buffer), "%d/%m/%y %H:%M:%S", &timeinfo);
+  return String(buffer);
+}
+
 void coneccion_wifi() {
   WiFi.mode(WIFI_STA);
   WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
@@ -63,6 +102,7 @@ void coneccion_wifi() {
     Serial.print('.');
     delay(1000);
   }
+  configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
   Serial.println(WiFi.localIP());
   Serial.println();
 }
@@ -83,15 +123,35 @@ void callback(char* topic, byte* message, unsigned int length) {
 
   // If a message is received on the topic esp32/output, you check if the message is either "on" or "off". 
   // Changes the output state according to the message
-  if (String(topic) == AWS_IOT_PUBLISH_TOPIC) {
-    Serial.print("Changing output to ");
-    if(messageTemp == "on"){
-      Serial.println("on");
-      digitalWrite(PIN_RELE_1, HIGH);
+  if (String(topic) == AWS_IOT_PUBLISH_TOPIC_RELAY_CONTROL) {
+    StaticJsonDocument<256> doc;
+    DeserializationError error = deserializeJson(doc, messageTemp);
+    if (error) {
+      Serial.print("Error al parsear JSON: ");
+      Serial.println(error.f_str());
+      return;
     }
-    else if(messageTemp == "off"){
-      Serial.println("off");
-      digitalWrite(PIN_RELE_1, LOW);
+    // Leer los valores del JSON
+    bool iluminacionManual = doc["iluminacionManual"];
+    bool iluminacionEncendida = doc["iluminacionEncendida"];
+
+    Serial.print("iluminacionManual: ");
+    Serial.println(iluminacionManual);
+    Serial.print("iluminacionEncendida: ");
+    Serial.println(iluminacionEncendida);
+    Serial.print("Changing output to ");
+    if (iluminacionManual) {
+      if (iluminacionEncendida) {
+        digitalWrite(PIN_RELE_1, LOW);  // Encender
+        rele1Encendido = true;
+        Serial.println("Relé iluminación ENCENDIDO (manual)");
+      } else {
+        digitalWrite(PIN_RELE_1, HIGH); // Apagar
+        rele1Encendido = false;
+        Serial.println("Relé iluminación APAGADO (manual)");
+      }
+    } else {
+      Serial.println("Modo automático, no se controla manualmente.");
     }
   }
 }
@@ -105,7 +165,7 @@ void reconnect() {
     if (client.connect(THINGNAME)) {
       Serial.println("connected");
       // Subscribe
-      client.subscribe(AWS_IOT_PUBLISH_TOPIC);
+      client.subscribe(AWS_IOT_PUBLISH_TOPIC_RELAY_CONTROL);
     } else {
       Serial.print("failed, rc=");
       Serial.print(client.state());
@@ -123,7 +183,7 @@ void loop() {
   client.loop();
     // Esperamos 5 segundos entre medidas
   long now = millis();
-  if (now - lastMsg > 5000) {
+  if (now - lastMsg > 2000) {
     lastMsg = now;
     t = dht.readTemperature();
     h = dht.readHumidity();
@@ -134,13 +194,40 @@ void loop() {
     doc["iluminancia"] = String(l, 1);
     char datosESP32[512];
     serializeJson(doc, datosESP32);
-    client.publish(AWS_IOT_SUBSCRIBE_TOPIC, datosESP32);
+    client.publish(AWS_IOT_SUBSCRIBE_TOPIC_ESP_DATA, datosESP32);
     Serial.println("Temperatura: " + String(t, 2) + "°C Humedad: " + String(h, 1) + "%");
     Serial.println("Iluminancia: " + String(l, 1) + "lux");
     if (!modoManual && l < umbralLux) {
-      digitalWrite(PIN_RELE_1, LOW); // Encender relé
+      /*{
+        "dispositivo": iluminacion/ventilacion,
+        "estado": enciendido/apagado,
+        "hora y fecha": dd/mm/aa hh:mm,
+      }*/
+      if (!rele1Encendido) {
+        digitalWrite(PIN_RELE_1, LOW); // Encender relé
+        rele1Encendido = true;
+        Serial.println("Encender relé");
+        StaticJsonDocument<200> doc;
+        doc["dispositivo"] = "iluminacion";
+        doc["estado"] = "encendido";
+        doc["tiempo"] = obtenerTiempo();
+        char estadoRele[512];
+        serializeJson(doc, estadoRele);
+        client.publish(AWS_IOT_SUBSCRIBE_TOPIC_RELAY_STATUS, estadoRele);
+      }
     } else {
-      digitalWrite(PIN_RELE_1, HIGH);  // Apagar relé
+      if (rele1Encendido) {
+        digitalWrite(PIN_RELE_1, HIGH);  // Apagar relé
+        rele1Encendido = false;
+        Serial.println("Apagar relé");
+        StaticJsonDocument<200> doc;
+        doc["dispositivo"] = "iluminacion";
+        doc["estado"] = "apagado";
+        doc["tiempo"] = obtenerTiempo();
+        char estadoRele[512];
+        serializeJson(doc, estadoRele);
+        client.publish(AWS_IOT_SUBSCRIBE_TOPIC_RELAY_STATUS, estadoRele);
+      }
     }
   }
 }
