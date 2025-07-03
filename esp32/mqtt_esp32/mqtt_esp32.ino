@@ -47,9 +47,12 @@ long lastMsg = 0;
 char msg[50];
 int value = 0;
 
+// Valores de medicion
 float t = 0;
 float h = 0;
 float l = 0;
+
+// Valores de configuracion
 bool iluminacionManual = false;
 bool ventilacionManual = false;
 bool rele1Encendido = false;
@@ -74,7 +77,7 @@ void setup() {
   digitalWrite(PIN_RELE_1, HIGH);
   digitalWrite(PIN_RELE_2, HIGH);
   rele1Encendido = false;
-  rele1Encendido = false;
+  rele2Encendido = false;
   // Inicializando comunicación serie
   Serial.begin(9600);
   // Inicializando sensor DHT y BH1750
@@ -113,6 +116,17 @@ void coneccion_wifi() {
   Serial.println();
 }
 
+void publicarEstadoRele(const char* dispositivo, const char* estado, const char* modo) {
+  StaticJsonDocument<200> doc;
+  doc["dispositivo"] = dispositivo;
+  doc["estado"] = estado;
+  doc["modo"] = modo;
+  doc["tiempo"] = obtenerTiempo();
+  char estadoRele[512];
+  serializeJson(doc, estadoRele);
+  client.publish(AWS_IOT_SUBSCRIBE_TOPIC_RELAY_STATUS, estadoRele);
+}
+
 void callback(char* topic, byte* message, unsigned int length) {
   Serial.print("Message arrived on topic: ");
   Serial.print(topic);
@@ -147,14 +161,16 @@ void callback(char* topic, byte* message, unsigned int length) {
     Serial.println(iluminacionEncendida);
     Serial.print("Changing output to ");
     if (iluminacionManual) {
-      if (iluminacionEncendida) {
+      if (iluminacionEncendida && !rele1Encendido) {
         digitalWrite(PIN_RELE_1, LOW);  // Encender
         rele1Encendido = true;
         Serial.println("Relé iluminación ENCENDIDO (manual)");
-      } else {
+        publicarEstadoRele("iluminacion", "encendido", "manual");
+      } else if (!iluminacionEncendida && rele1Encendido){
         digitalWrite(PIN_RELE_1, HIGH); // Apagar
         rele1Encendido = false;
         Serial.println("Relé iluminación APAGADO (manual)");
+        publicarEstadoRele("iluminacion", "apagado", "manual");
       }
     } else {
       Serial.println("Modo automático, no se controla manualmente.");
@@ -164,14 +180,16 @@ void callback(char* topic, byte* message, unsigned int length) {
     bool ventilacionEncendida = doc["ventilacionEncendida"];
 
     if (ventilacionManual) {
-      if (ventilacionEncendida) {
+      if (ventilacionEncendida && !rele2Encendido) {
         digitalWrite(PIN_RELE_2, LOW);  // Encender
         rele2Encendido = true;
         Serial.println("Relé ventilacion ENCENDIDO (manual)");
-      } else {
+        publicarEstadoRele("ventilacion", "encendido", "manual");
+      } else if (!ventilacionEncendida && rele2Encendido){
         digitalWrite(PIN_RELE_2, HIGH); // Apagar
         rele2Encendido = false;
         Serial.println("Relé ventilacion APAGADO (manual)");
+        publicarEstadoRele("ventilacion", "apagado", "manual");
       }
     } else {
       Serial.println("Modo automático, no se controla manualmente.");
@@ -198,7 +216,7 @@ void reconnect() {
     }
   }
 }
- 
+
 void loop() {
   if (!client.connected()) {
     reconnect();
@@ -230,24 +248,12 @@ void loop() {
         digitalWrite(PIN_RELE_1, LOW); // Encender relé
         rele1Encendido = true;
         Serial.println("Encender relé");
-        StaticJsonDocument<200> doc;
-        doc["dispositivo"] = "iluminacion";
-        doc["estado"] = "encendido";
-        doc["tiempo"] = obtenerTiempo();
-        char estadoRele[512];
-        serializeJson(doc, estadoRele);
-        client.publish(AWS_IOT_SUBSCRIBE_TOPIC_RELAY_STATUS, estadoRele);
+        publicarEstadoRele("iluminacion", "encendido", "automatico");
       } else if (l > umbralSuperiorTemperatura && rele1Encendido) {
         digitalWrite(PIN_RELE_1, HIGH);  // Apagar relé
         rele1Encendido = false;
         Serial.println("Apagar relé");
-        StaticJsonDocument<200> doc;
-        doc["dispositivo"] = "iluminacion";
-        doc["estado"] = "apagado";
-        doc["tiempo"] = obtenerTiempo();
-        char estadoRele[512];
-        serializeJson(doc, estadoRele);
-        client.publish(AWS_IOT_SUBSCRIBE_TOPIC_RELAY_STATUS, estadoRele);
+        publicarEstadoRele("iluminacion", "apagado", "automatico");
       }
     }
     if (!ventilacionManual) {
@@ -255,24 +261,12 @@ void loop() {
         digitalWrite(PIN_RELE_2, LOW); // Encender relé
         rele2Encendido = true;
         Serial.println("Encender relé");
-        StaticJsonDocument<200> doc;
-        doc["dispositivo"] = "ventilacion";
-        doc["estado"] = "encendido";
-        doc["tiempo"] = obtenerTiempo();
-        char estadoRele[512];
-        serializeJson(doc, estadoRele);
-        client.publish(AWS_IOT_SUBSCRIBE_TOPIC_RELAY_STATUS, estadoRele);
+        publicarEstadoRele("ventilacion", "encendido", "automatico");
       } else if (t < umbralInferiorTemperatura && rele2Encendido) {
         digitalWrite(PIN_RELE_2, HIGH);  // Apagar relé
         rele2Encendido = false;
         Serial.println("Apagar relé");
-        StaticJsonDocument<200> doc;
-        doc["dispositivo"] = "ventilacion";
-        doc["estado"] = "apagado";
-        doc["tiempo"] = obtenerTiempo();
-        char estadoRele[512];
-        serializeJson(doc, estadoRele);
-        client.publish(AWS_IOT_SUBSCRIBE_TOPIC_RELAY_STATUS, estadoRele);
+        publicarEstadoRele("ventilacion", "apagado", "automatico");
       }
     }
   }
