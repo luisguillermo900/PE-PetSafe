@@ -1,3 +1,5 @@
+import 'dart:convert';
+import 'package:lab04/services/blocs/aws_iot_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -11,6 +13,12 @@ class IluminacionView extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final estado = ref.watch(iluminacionProvider);
     final vm = ref.read(iluminacionProvider.notifier);
+    final awsIotBlocProvider = Provider<AwsIotBloc>((ref) {
+      return AwsIotBloc();
+    });
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(awsIotBlocProvider).add(AwsIotConnect());
+    });
 
     return Scaffold(
       backgroundColor: const Color(0xFF0F5C94),
@@ -93,7 +101,20 @@ class IluminacionView extends ConsumerWidget {
                 // Botón encender/apagar
                 Center(
                   child: ElevatedButton(
-                    onPressed: vm.toggleLuz,
+                    onPressed: () {
+                      vm.toggleLuz();
+                      
+                      // Luego, envía el mensaje JSON a través del bloc
+                      final bloc = ref.read(awsIotBlocProvider);
+                      final nuevoEstado = ref.read(iluminacionProvider);
+                      final mensaje = jsonEncode({
+                        'iluminacionManual': true,
+                        'iluminacionEncendida': nuevoEstado.luzActiva
+                      });
+                      
+                        bloc.add(AwsIotSendMessage(mensaje));
+                      
+                    },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.yellow.shade700,
                       minimumSize: const Size(200, 48),
