@@ -56,7 +56,7 @@ class LoginView extends ConsumerWidget {
                   onPressed: loginState.isLoading
                       ? null
                       : () async {
-                          await loginVM.login(userCtrl.text, passCtrl.text);
+                          await loginVM.login(userCtrl.text, passCtrl.text, ref);
                           if (ref.read(loginProvider).error == null && context.mounted) {
                             Navigator.pushReplacement(
                               context,

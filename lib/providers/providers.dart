@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/user_model.dart';
+import 'package:lab04/services/blocs/aws_iot_bloc.dart';
 import '../viewmodels/login_viewmodel.dart';
 import '../viewmodels/home_viewmodel.dart';
 import '../viewmodels/temperatura_viewmodel.dart';
@@ -45,3 +46,5 @@ final iluminacionProvider =
     StateNotifierProvider<IluminacionViewModel, IluminacionState>(
       (ref) => IluminacionViewModel(),
     );
+
+final awsIotBlocProvider = StateProvider<AwsIotBloc?>((ref) => null);

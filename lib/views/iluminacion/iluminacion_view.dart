@@ -13,13 +13,7 @@ class IluminacionView extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final estado = ref.watch(iluminacionProvider);
     final vm = ref.read(iluminacionProvider.notifier);
-    final awsIotBlocProvider = Provider<AwsIotBloc>((ref) {
-      return AwsIotBloc();
-    });
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(awsIotBlocProvider).add(AwsIotConnect());
-    });
-
+   
     return Scaffold(
       backgroundColor: const Color(0xFF0F5C94),
       body: SafeArea(
@@ -105,15 +99,19 @@ class IluminacionView extends ConsumerWidget {
                       vm.toggleLuz();
                       
                       // Luego, envía el mensaje JSON a través del bloc
-                      final bloc = ref.read(awsIotBlocProvider);
+                      final bloc = ref.watch(awsIotBlocProvider);
                       final nuevoEstado = ref.read(iluminacionProvider);
                       final mensaje = jsonEncode({
                         'iluminacionManual': true,
                         'iluminacionEncendida': nuevoEstado.luzActiva
                       });
-                      
-                        bloc.add(AwsIotSendMessage(mensaje));
-                      
+                      if (bloc == null) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('No conectado a AWS IoT')),
+                        );
+                        return;
+                      }
+                      bloc.add(AwsIotSendMessage(mensaje));
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.yellow.shade700,
