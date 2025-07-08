@@ -13,11 +13,7 @@ class TemperatureView extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [BlocProvider(create: (context) => AwsIotBloc())],
-      child: MaterialApp(
-        title: 'Temperatura',
-        debugShowCheckedModeBanner: false,
-        home: const TemperaturePage(),
-      ),
+      child: const TemperaturePage(),
     );
   }
 }
@@ -30,19 +26,10 @@ class TemperaturePage extends StatefulWidget {
 }
 
 class _TemperaturePageState extends State<TemperaturePage> {
+  
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<AwsIotBloc, AwsIotState>(
-      builder: (context, state) {
-        return Scaffold(
-          appBar: AppBar(
-            backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-            title: const Text('Temperatura'),
-          ),
-          body: _buildBody(),
-        );
-      },
-    );
+    return _buildBody();
   }
 
   Widget _buildBody() {
@@ -59,7 +46,8 @@ class _TemperaturePageState extends State<TemperaturePage> {
         if (state is AwsIotInitial ||
             state is AwsIotDisconnected ||
             state is AwsIotError) {
-          return Center(child: ConnectButton());
+          //return Center(child: ConnectButton());
+          context.read<AwsIotBloc>().add(AwsIotConnect());
         }
 
         if (state is AwsIotConnecting) {
@@ -69,18 +57,17 @@ class _TemperaturePageState extends State<TemperaturePage> {
         return SingleChildScrollView(
           child: Column(
             children: [
-              Padding(
-                padding: const EdgeInsets.all(10.0),
-                child: MessageInputBar(
-                  onSend:
-                      (message) => context.read<AwsIotBloc>().add(
-                        AwsIotSendMessage(message),
-                      ),
-                ),
-              ),
+              // Padding(
+              //   padding: const EdgeInsets.all(10.0),
+              //   child: MessageInputBar(
+              //     onSend:
+              //         (message) => context.read<AwsIotBloc>().add(
+              //           AwsIotSendMessage(message),
+              //         ),
+              //   ),
+              // ),
 
               const SizedBox(height: 16),
-
               Padding(
                 padding: const EdgeInsets.all(10.0),
                 child: MessageTemperature(
@@ -88,9 +75,10 @@ class _TemperaturePageState extends State<TemperaturePage> {
                 ),
               ),
 
-              const SizedBox(height: 16),
+              //const SizedBox(height: 16),SS
 
-              const Center(child: SendFormattedDataButton()),
+              //const Center(child: SendFormattedDataButton()),
+
             ],
           ),
         );

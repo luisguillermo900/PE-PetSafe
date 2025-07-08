@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:lab04/views/temperatura/temperature_view.dart';
 import '../../providers/providers.dart';
 import '../../services/firebase_service.dart';
 
@@ -72,14 +73,7 @@ class TemperaturaView extends ConsumerWidget {
                           size: 60,
                           color: Colors.white,
                         ),
-                        const SizedBox(height: 12),
-                        Text(
-                          "${temperaturaState.temperatura} °C",
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 28,
-                          ),
-                        ),
+                        TemperatureView(),
                       ],
                     ),
                   ),
@@ -168,6 +162,7 @@ class TemperaturaView extends ConsumerWidget {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
+
                 const SizedBox(height: 12),
 
                 FutureBuilder<List<Map<String, dynamic>>>(

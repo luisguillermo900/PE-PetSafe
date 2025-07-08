@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:convert';
 
 class MessageTemperature extends StatelessWidget {
   final List<String> messages;
@@ -7,24 +8,55 @@ class MessageTemperature extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadiusGeometry.circular(24)),
-      color: const Color.fromARGB(255, 77, 142, 255),
-      shadowColor: const Color.fromARGB(255, 0, 0, 0),
-      child: Center(
-        widthFactor: 5,
-        heightFactor: 1,
-        child: Column(
-          children: [
-            const SizedBox(height: 10.0),
+
+    DataTemperatura? data;
+
+    if (messages.isNotEmpty && messages.first.isNotEmpty) {
+      try {
+        final Map<String, dynamic> dataTem = jsonDecode(messages.first);
+        data = DataTemperatura.fromJson(dataTem);
+      } catch (e) {
+        debugPrint('Error al decodificar JSON: $e');
+      }
+    }
+    
+    return Center(
+      widthFactor: 5,
+      heightFactor: 1,
+      child: Column(
+        children: [
+          if (data != null)
             Text(
-              messages.join('\n'),
-              style: const TextStyle(fontSize: 14, color: Color.fromARGB(240, 255, 255, 255)),
+              '${data.temperatura} °C',
+              style: const TextStyle(
+                fontSize: 14,
+                color: Color.fromARGB(240, 255, 255, 255),
+              ),
+            )
+          else
+            const Text(
+              'No hay mensajes',
+              style: TextStyle(
+                fontSize: 14,
+                color: Color.fromARGB(240, 255, 255, 255),
+                fontStyle: FontStyle.italic,
+              ),
             ),
-            const SizedBox(height: 10.0),
-          ],
-        ),
+        ],
       ),
     );
   }
 }
+
+class DataTemperatura {
+  final String temperatura;
+
+  DataTemperatura({required this.temperatura});
+
+  factory DataTemperatura.fromJson(Map<String, dynamic> json) {
+    return DataTemperatura(
+      temperatura: json['temperatura'].toString(),
+    );
+  }
+}
+

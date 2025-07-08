@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:lab04/views/temperatura/temperatura_view.dart';
 import 'package:lab04/views/temperatura/temperature_view.dart';
 import '../../models/user_model.dart';
 import '../../providers/providers.dart';
@@ -7,7 +8,6 @@ import '../../viewmodels/temperatura_viewmodel.dart';
 import '../../viewmodels/ventilacion_viewmodel.dart';
 import '../../viewmodels/iluminacion_viewmodel.dart';
 import '../../services/firebase_service.dart';
-import '../temperatura/temperatura_view.dart';
 import '../ventilacion/ventilacion_view.dart';
 import '../iluminacion/iluminacion_view.dart';
 import '../calendario/calendario_view.dart';
@@ -99,7 +99,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
         user,
         eventosHoy,
       ),
-      const TemperatureView(),
+      const TemperaturaView(),
       const IluminacionView(),
       const VentilacionView(),
       const CalendarioView(),
