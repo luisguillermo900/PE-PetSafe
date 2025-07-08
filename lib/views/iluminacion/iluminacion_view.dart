@@ -1,3 +1,5 @@
+import 'dart:convert';
+import 'package:lab04/services/blocs/aws_iot_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -11,7 +13,7 @@ class IluminacionView extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final estado = ref.watch(iluminacionProvider);
     final vm = ref.read(iluminacionProvider.notifier);
-
+   
     return Scaffold(
       backgroundColor: const Color(0xFF0F5C94),
       body: SafeArea(
@@ -93,7 +95,24 @@ class IluminacionView extends ConsumerWidget {
                 // Botón encender/apagar
                 Center(
                   child: ElevatedButton(
-                    onPressed: vm.toggleLuz,
+                    onPressed: () {
+                      vm.toggleLuz();
+                      
+                      // Luego, envía el mensaje JSON a través del bloc
+                      final bloc = ref.watch(awsIotBlocProvider);
+                      final nuevoEstado = ref.read(iluminacionProvider);
+                      final mensaje = jsonEncode({
+                        'iluminacionManual': true,
+                        'iluminacionEncendida': nuevoEstado.luzActiva
+                      });
+                      if (bloc == null) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('No conectado a AWS IoT')),
+                        );
+                        return;
+                      }
+                      bloc.add(AwsIotSendMessage(mensaje));
+                    },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.yellow.shade700,
                       minimumSize: const Size(200, 48),
