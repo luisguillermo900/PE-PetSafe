@@ -6,6 +6,7 @@ import 'package:lab04/services/core/model/formatted_data_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:lab04/viewmodels/sensores_notifier.dart';
 import 'package:mqtt_client/mqtt_client.dart';
 import 'package:mqtt_client/mqtt_server_client.dart';
 
@@ -13,13 +14,14 @@ part 'aws_iot_event.dart';
 part 'aws_iot_state.dart';
 
 class AwsIotBloc extends Bloc<AwsIotEvent, AwsIotState> {
+  final SensoresNotifier sensoresNotifier;
   final MqttServerClient _client =
       MqttServerClient(AwsIotCoreConfig.endpoint, "");
 
   static const int maxMessages = 10;
   final List<String> _messages = [];
 
-  AwsIotBloc() : super(AwsIotInitial()) {
+  AwsIotBloc({required this.sensoresNotifier}) : super(AwsIotInitial()) {
     on<AwsIotConnect>(_onConnect);
     on<AwsIotSendMessage>(_onSendMessage);
     on<AwsIotDataReceivedEvent>(
@@ -98,12 +100,15 @@ class AwsIotBloc extends Bloc<AwsIotEvent, AwsIotState> {
 
   /// Handle data coming from AWS IoT
   Future<void> _onDataComming(String payload, Emitter<AwsIotState> emit) async {
+    Future.microtask(() {
+      sensoresNotifier.procesarPayload(payload);
+    });
     debugPrint('Data coming: $payload');
     _messages.insert(0, payload);
     if (_messages.length > maxMessages) {
       _messages.removeLast();
     }
-    emit(AwsIotDataReceived(List.from(_messages)));
+    //emit(AwsIotDataReceived(List.from(_messages)));
   }
 
   Future<void> _onSendFormattedMessage(

@@ -18,7 +18,8 @@ class LoginViewModel extends StateNotifier<LoginState> {
 
     if (username == "admin" && password == "1234") {
       state = LoginState(); // login correcto
-      final bloc = AwsIotBloc();
+      final sensoresNotifier = ref.read(sensoresProvider.notifier);
+      final bloc = AwsIotBloc(sensoresNotifier: sensoresNotifier);
       bloc.add(AwsIotConnect());
 
       // Guardarlo en el provider

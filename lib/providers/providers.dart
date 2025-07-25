@@ -9,6 +9,7 @@ import '../viewmodels/historial_viewmodel.dart';
 import '../viewmodels/calendario_viewmodel.dart';
 import '../viewmodels/ventilacion_viewmodel.dart';
 import '../viewmodels/iluminacion_viewmodel.dart';
+import '../viewmodels/sensores_notifier.dart';
 
 final loginProvider = StateNotifierProvider<LoginViewModel, LoginState>(
   (ref) => LoginViewModel(),
@@ -48,3 +49,7 @@ final iluminacionProvider =
     );
 
 final awsIotBlocProvider = StateProvider<AwsIotBloc?>((ref) => null);
+
+final sensoresProvider = StateNotifierProvider<SensoresNotifier, SensoresState>(
+  (ref) => SensoresNotifier(),
+);

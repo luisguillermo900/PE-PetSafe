@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lab04/views/temperatura/temperatura_view.dart';
 import 'package:lab04/views/temperatura/temperature_view.dart';
+import 'package:lab04/services/blocs/aws_iot_bloc.dart';
 import '../../models/user_model.dart';
 import '../../providers/providers.dart';
 import '../../viewmodels/temperatura_viewmodel.dart';
 import '../../viewmodels/ventilacion_viewmodel.dart';
 import '../../viewmodels/iluminacion_viewmodel.dart';
+import '../../viewmodels/sensores_notifier.dart';
 import '../../services/firebase_service.dart';
 import '../ventilacion/ventilacion_view.dart';
 import '../iluminacion/iluminacion_view.dart';
@@ -47,12 +49,12 @@ class _HomeViewState extends ConsumerState<HomeView> {
     final calendario = ref.watch(calendarioProvider);
     final calendarioVM = ref.read(calendarioProvider.notifier);
     final user = ref.watch(userProvider);
-
+    //final estadoSensores = ref.watch(sensoresProvider);
     final hoy = DateTime.now();
     final eventosHoy = calendarioVM.obtenerEventosDelDia(hoy);
 
     // Automatizaciones
-    if (temperatura.temperatura > 30 &&
+    /*if (temperatura.temperatura > 30 &&
         ventilacion.modoAutomatico &&
         !ventilacion.ventiladorActivo) {
       Future.microtask(() {
@@ -88,7 +90,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
           );
         }
       });
-    }
+    }*/
 
     final List<Widget> vistas = [
       _buildHomeContent(
@@ -98,6 +100,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
         iluminacion,
         user,
         eventosHoy,
+        //estadoSensores,
       ),
       const TemperaturaView(),
       const IluminacionView(),
@@ -142,6 +145,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
     IluminacionState iluminacion,
     UserModel user,
     List eventosHoy,
+    //SensoresState estadoSensores,
   ) {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
@@ -231,7 +235,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
               Expanded(
       child: _widgetCard(
         context,
-        label: "${temperatura.temperatura} °C\n${temperatura.humedad}% humedad",
+        label: "${ref.watch(sensoresProvider.select((s) => s.temperatura))} °C\n${ref.watch(sensoresProvider.select((s) => s.humedad))}% humedad",
         icon: Icons.thermostat,
         onTap: () => ref.read(homeProvider.notifier).state = 1,
       ),

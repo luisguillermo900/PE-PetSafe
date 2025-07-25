@@ -73,7 +73,15 @@ class TemperaturaView extends ConsumerWidget {
                           size: 60,
                           color: Colors.white,
                         ),
-                        TemperatureView(),
+                        const SizedBox(height: 12),
+                        Text(
+                          '${ref.watch(sensoresProvider.select((s) => s.temperatura))} °C',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 20,
+                          ),
+                        ),
+                        //TemperatureView(),
                       ],
                     ),
                   ),
