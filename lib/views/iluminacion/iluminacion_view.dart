@@ -132,7 +132,23 @@ class IluminacionView extends ConsumerWidget {
                 // Botón automático
                 Center(
                   child: ElevatedButton(
-                    onPressed: vm.activarModoAutomatico,
+                    onPressed: () {
+                      vm.activarModoAutomatico();
+                      
+                      // Luego, envía el mensaje JSON a través del bloc
+                      final bloc = ref.watch(awsIotBlocProvider);
+                      final mensaje = jsonEncode({
+                        'iluminacionManual': false,
+                        'iluminacionEncendida': estado.luzActiva
+                      });
+                      if (bloc == null) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('No conectado a AWS IoT')),
+                        );
+                        return;
+                      }
+                      bloc.add(AwsIotSendMessage(mensaje));
+                    },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF4CA6FF),
                       minimumSize: const Size(200, 48),
