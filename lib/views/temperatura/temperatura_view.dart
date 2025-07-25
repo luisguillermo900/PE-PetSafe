@@ -1,8 +1,11 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:lab04/views/temperatura/temperature_view.dart';
 import '../../providers/providers.dart';
+import '../../services/blocs/aws_iot_bloc.dart';
 import '../../services/firebase_service.dart';
 
 class TemperaturaView extends ConsumerWidget {
@@ -91,7 +94,21 @@ class TemperaturaView extends ConsumerWidget {
 
                 Center(
                   child: ElevatedButton(
-                    onPressed: viewModel.toggleCalefaccion,
+                    onPressed: (){
+                      viewModel.toggleCalefaccion();
+                      final bloc = ref.watch(awsIotBlocProvider);
+                      final mensaje = jsonEncode({
+                        'ventilacionManual': true,
+                        'ventilacionEncendida': temperaturaState.calefaccionActiva
+                      });
+                      if (bloc == null) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('No conectado a AWS IoT')),
+                        );
+                        return;
+                      }
+                      bloc.add(AwsIotSendMessage(mensaje));
+                    },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.red,
                       minimumSize: const Size(200, 48),
@@ -112,7 +129,21 @@ class TemperaturaView extends ConsumerWidget {
 
                 Center(
                   child: ElevatedButton(
-                    onPressed: viewModel.activarModoAutomatico,
+                    onPressed: (){
+                      viewModel.activarModoAutomatico();
+                      final bloc = ref.watch(awsIotBlocProvider);
+                      final mensaje = jsonEncode({
+                        'ventilacionManual': false,
+                        'ventilacionEncendida': temperaturaState.calefaccionActiva
+                      });
+                      if (bloc == null) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('No conectado a AWS IoT')),
+                        );
+                        return;
+                      }
+                      bloc.add(AwsIotSendMessage(mensaje));
+                    },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF4CA6FF),
                       minimumSize: const Size(200, 48),

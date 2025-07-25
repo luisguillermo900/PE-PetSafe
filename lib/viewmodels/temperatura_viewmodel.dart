@@ -64,7 +64,7 @@ class TemperaturaViewModel extends StateNotifier<TemperaturaState> {
   Future<void> activarModoAutomatico() async {
     state = state.copyWith(
       modoAutomatico: true,
-      calefaccionActiva: false,
+      calefaccionActiva: state.calefaccionActiva,
       temperatura: 28,
     );
 

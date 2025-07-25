@@ -74,9 +74,7 @@ class VentilacionView extends ConsumerWidget {
                         ),
                         const SizedBox(height: 12),
                         Text(
-                          estado.ventiladorActivo
-                              ? "Ventilador Encendido"
-                              : "Ventilador Apagado",
+                          '${ref.watch(sensoresProvider.select((s) => s.temperatura))} °C',
                           style: const TextStyle(
                             color: Colors.white,
                             fontSize: 20,

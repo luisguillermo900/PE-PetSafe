@@ -235,7 +235,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
               Expanded(
       child: _widgetCard(
         context,
-        label: "${ref.watch(sensoresProvider.select((s) => s.temperatura))} °C\n${ref.watch(sensoresProvider.select((s) => s.humedad))}% humedad",
+        label: temperatura.calefaccionActiva ? "Calefaccion\nEncendida" : "Calefaccion\nApagada",
         icon: Icons.thermostat,
         onTap: () => ref.read(homeProvider.notifier).state = 1,
       ),

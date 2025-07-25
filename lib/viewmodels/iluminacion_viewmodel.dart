@@ -38,7 +38,7 @@ class IluminacionViewModel extends StateNotifier<IluminacionState> {
   }
 
   Future<void> activarModoAutomatico() async {
-    state = state.copyWith(modoAutomatico: true, luzActiva: false);
+    state = state.copyWith(modoAutomatico: true, luzActiva: state.luzActiva);
 
     final comando = {
       "accion": "modo_automatico",

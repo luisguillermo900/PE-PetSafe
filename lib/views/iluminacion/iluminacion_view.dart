@@ -79,7 +79,7 @@ class IluminacionView extends ConsumerWidget {
                         ),
                         const SizedBox(height: 12),
                         Text(
-                          estado.luzActiva ? "Luz Encendida" : "Luz Apagada",
+                          '${ref.watch(sensoresProvider.select((s) => s.iluminancia))} lx',
                           style: const TextStyle(
                             color: Colors.white,
                             fontSize: 20,
@@ -134,7 +134,6 @@ class IluminacionView extends ConsumerWidget {
                   child: ElevatedButton(
                     onPressed: () {
                       vm.activarModoAutomatico();
-                      
                       // Luego, envía el mensaje JSON a través del bloc
                       final bloc = ref.watch(awsIotBlocProvider);
                       final mensaje = jsonEncode({
@@ -148,6 +147,7 @@ class IluminacionView extends ConsumerWidget {
                         return;
                       }
                       bloc.add(AwsIotSendMessage(mensaje));
+                      
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF4CA6FF),
@@ -188,7 +188,7 @@ class IluminacionView extends ConsumerWidget {
                             estado.modoAutomatico
                                 ? "Modo automático activado"
                                 : estado.luzActiva
-                                ? "Luz encendida manualmente"
+                                ? "Luz encendida"
                                 : "Luz apagada",
                             style: const TextStyle(color: Colors.white70),
                           ),
