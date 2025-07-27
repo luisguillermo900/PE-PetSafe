@@ -21,6 +21,15 @@ mensajes de cambio de estado
   "estado": enciendido/apagado,
   "hora y fecha": dd/mm/aa hh:mm,
 }
+
+{
+  "temperatura": "22.0",
+  "humedad": "15.0",
+  "iluminancia": "13.3",
+}
+doc["temperatura"] = String(t, 2);
+    doc["humedad"] = String(h, 1);
+    doc["iluminancia"] = String(l, 1);
 */
 
 #include <WiFi.h>
@@ -41,9 +50,12 @@ mensajes de cambio de estado
 #define AWS_IOT_PUBLISH_TOPIC_RELAY_CONTROL "esp32/control_reles"
 #define AWS_IOT_PUBLISH_TOPIC_THRESHOLD_CONTROL "esp32/config_umbrales"
 #define AWS_IOT_SUBSCRIBE_TOPIC_ESP_DATA "esp32/datos_esp32"
+#define AWS_IOT_SUBSCRIBE_TOPIC_ESP_PERSIST_DATA "esp32/datos_persistente_esp32"
 #define AWS_IOT_SUBSCRIBE_TOPIC_RELAY_STATUS "esp32/estado_reles"
 
 long lastMsg = 0;
+long lastLiveMsg = 0;
+long lastPersistMsg = 0;
 char msg[50];
 int value = 0;
 
@@ -103,6 +115,12 @@ String obtenerTiempo() {
   return String(buffer);
 }
 
+long obtenerTimestamp() {
+  time_t now;
+  time(&now);
+  return now; // devuelve el epoch en segundos
+}
+
 void coneccion_wifi() {
   WiFi.mode(WIFI_STA);
   WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
@@ -118,10 +136,12 @@ void coneccion_wifi() {
 
 void publicarEstadoRele(const char* dispositivo, const char* estado, const char* modo) {
   StaticJsonDocument<200> doc;
+  doc["id_dispositivo"] = "esp32-01";
   doc["dispositivo"] = dispositivo;
   doc["estado"] = estado;
   doc["modo"] = modo;
   doc["tiempo"] = obtenerTiempo();
+  doc["timestamp"] = obtenerTimestamp();
   char estadoRele[512];
   serializeJson(doc, estadoRele);
   client.publish(AWS_IOT_SUBSCRIBE_TOPIC_RELAY_STATUS, estadoRele);
@@ -224,8 +244,8 @@ void loop() {
   client.loop();
     // Esperamos 5 segundos entre medidas
   long now = millis();
-  if (now - lastMsg > 2000) {
-    lastMsg = now;
+  if (now - lastLiveMsg > 2000) {
+    lastLiveMsg = now;
     t = dht.readTemperature();
     h = dht.readHumidity();
     l = luxometro.readLightLevel();
@@ -269,5 +289,22 @@ void loop() {
         publicarEstadoRele("ventilacion", "apagado", "automatico");
       }
     }
+  }
+  if (now - lastPersistMsg > 300000) {
+    lastPersistMsg = now;
+    t = dht.readTemperature();
+    h = dht.readHumidity();
+    l = luxometro.readLightLevel();
+    StaticJsonDocument<200> doc;
+    doc["id_dispositivo"] = "esp32-01";
+    doc["temperatura"] = String(t, 2);
+    doc["humedad"] = String(h, 1);
+    doc["iluminancia"] = String(l, 1);
+    doc["tiempo"] = obtenerTiempo();
+    doc["timestamp"] = obtenerTimestamp();
+    char datosESP32[512];
+    serializeJson(doc, datosESP32);
+    client.publish(AWS_IOT_SUBSCRIBE_TOPIC_ESP_PERSIST_DATA, datosESP32);
+    Serial.println("Datos persistentes enviados");
   }
 }
