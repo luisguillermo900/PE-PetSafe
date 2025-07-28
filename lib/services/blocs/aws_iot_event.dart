@@ -13,8 +13,9 @@ final class AwsIotConnect extends AwsIotEvent {}
 
 final class AwsIotDataReceivedEvent extends AwsIotEvent {
   final String payload;
+  final String topic;
 
-  AwsIotDataReceivedEvent(this.payload);
+  AwsIotDataReceivedEvent(this.payload, this.topic);
 }
 
 final class AwsIotSendFormattedMessage extends AwsIotEvent {

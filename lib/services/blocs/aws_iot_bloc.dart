@@ -6,6 +6,7 @@ import 'package:lab04/services/core/model/formatted_data_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:lab04/viewmodels/dispositivos_notifier.dart';
 import 'package:lab04/viewmodels/sensores_notifier.dart';
 import 'package:mqtt_client/mqtt_client.dart';
 import 'package:mqtt_client/mqtt_server_client.dart';
@@ -15,17 +16,18 @@ part 'aws_iot_state.dart';
 
 class AwsIotBloc extends Bloc<AwsIotEvent, AwsIotState> {
   final SensoresNotifier sensoresNotifier;
+  final DispositivosNotifier dispositivosNotifier;
   final MqttServerClient _client =
       MqttServerClient(AwsIotCoreConfig.endpoint, "");
 
   static const int maxMessages = 10;
   final List<String> _messages = [];
 
-  AwsIotBloc({required this.sensoresNotifier}) : super(AwsIotInitial()) {
+  AwsIotBloc({required this.sensoresNotifier, required this.dispositivosNotifier}) : super(AwsIotInitial()) {
     on<AwsIotConnect>(_onConnect);
     on<AwsIotSendMessage>(_onSendMessage);
     on<AwsIotDataReceivedEvent>(
-        (event, emit) => _onDataComming(event.payload, emit));
+        (event, emit) => _onDataComming(event.payload, event.topic, emit));
     on<AwsIotSendFormattedMessage>(
         (event, emit) => _onSendFormattedMessage(event.formattedData, emit));
   }
@@ -71,16 +73,19 @@ class AwsIotBloc extends Bloc<AwsIotEvent, AwsIotState> {
   }
 
   /// Handle on connected, after connected, we'll subscribe the
-  /// channel [AwsIotCoreConfig.subTopic]
+  /// channel [AwsIotCoreConfig.subTopic] and
+  /// channel [AwsIotCoreConfig.estadoRelesTopic]
   void _handleOnConnected(Emitter<AwsIotState> emit) async {
     debugPrint('MQTT client is connected');
 
     _client.subscribe(AwsIotCoreConfig.subTopic, MqttQos.atMostOnce);
+    _client.subscribe(AwsIotCoreConfig.estadoRelesTopic, MqttQos.atMostOnce);
 
     _client.updates!.listen((List<MqttReceivedMessage<MqttMessage>> c) {
+      final topic = c[0].topic;
       final recMess = c[0].payload as MqttPublishMessage;
       final message = String.fromCharCodes(recMess.payload.message);
-      add(AwsIotDataReceivedEvent(message));
+      add(AwsIotDataReceivedEvent(message, topic));
     });
 
     emit(AwsIotConnected());
@@ -99,11 +104,18 @@ class AwsIotBloc extends Bloc<AwsIotEvent, AwsIotState> {
   }
 
   /// Handle data coming from AWS IoT
-  Future<void> _onDataComming(String payload, Emitter<AwsIotState> emit) async {
-    Future.microtask(() {
-      sensoresNotifier.procesarPayload(payload);
-    });
-    debugPrint('Data coming: $payload');
+  Future<void> _onDataComming(String payload, String topic, Emitter<AwsIotState> emit) async {
+    if(topic == AwsIotCoreConfig.subTopic){
+      Future.microtask(() {
+        sensoresNotifier.procesarPayload(payload);
+      });
+    } else if (topic == AwsIotCoreConfig.estadoRelesTopic){
+      Future.microtask(() {
+        debugPrint('Data coming from $topic');
+        dispositivosNotifier.procesarPayload(payload);
+      });
+    }
+    debugPrint('Data coming from $topic: $payload');
     _messages.insert(0, payload);
     if (_messages.length > maxMessages) {
       _messages.removeLast();

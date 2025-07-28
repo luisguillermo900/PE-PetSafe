@@ -4,11 +4,26 @@ import 'package:intl/intl.dart';
 import '../../providers/providers.dart';
 import '../../services/firebase_service.dart';
 
-class VentilacionView extends ConsumerWidget {
+class VentilacionView extends ConsumerStatefulWidget {
   const VentilacionView({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<VentilacionView> createState() => _VentilacionViewState();
+}
+
+class _VentilacionViewState extends ConsumerState<VentilacionView> {
+  @override
+  void initState() {
+    super.initState();
+
+    // Cargar datos al abrir la vista
+    Future.microtask(() {
+      ref.read(alertasProvider.notifier).cargarAlertas();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final estado = ref.watch(ventilacionProvider);
     final vm = ref.read(ventilacionProvider.notifier);
 
@@ -162,34 +177,29 @@ class VentilacionView extends ConsumerWidget {
                   ),
                 ),
                 const SizedBox(height: 12),
-                FutureBuilder<List<Map<String, dynamic>>>(
-                  future: FirebaseService.fetchHistorialVentilacion(),
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const Center(child: CircularProgressIndicator());
-                    } else if (snapshot.hasError) {
-                      return Text(
-                        "Error: ${snapshot.error}",
-                        style: const TextStyle(color: Colors.white),
-                      );
-                    } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                Consumer(
+                  builder: (context, ref, _) {
+                    final alertas = ref.watch(alertasProvider);
+                    final historial = alertas
+                      .where((a) => a.nombre == "ventilacion")
+                      .toList()
+                      .reversed
+                      .toList();
+                    if (historial.isEmpty) {
                       return const Text(
                         "No hay historial disponible.",
                         style: TextStyle(color: Colors.white70),
                       );
                     }
-                    final historial = snapshot.data!;
+
                     return ListView.builder(
                       shrinkWrap: true,
                       physics: const NeverScrollableScrollPhysics(),
                       itemCount: historial.length,
                       itemBuilder: (context, index) {
                         final item = historial[index];
-                        final fecha = DateFormat('dd/MM/yyyy – HH:mm').format(
-                          DateTime.fromMillisecondsSinceEpoch(
-                            item['timestamp'],
-                          ),
-                        );
+                        final fecha = item.tiempo;
+
                         return Container(
                           margin: const EdgeInsets.symmetric(vertical: 6),
                           padding: const EdgeInsets.all(12),
@@ -200,10 +210,8 @@ class VentilacionView extends ConsumerWidget {
                           child: Row(
                             children: [
                               Icon(
-                                item['accion'] == 'encender'
-                                    ? Icons.air
-                                    : Icons.air_outlined,
-                                color: Colors.white,
+                                Icons.thermostat,
+                                color: item.estado == 'encendido' ? Colors.red : Colors.blue,
                               ),
                               const SizedBox(width: 12),
                               Expanded(
@@ -211,14 +219,18 @@ class VentilacionView extends ConsumerWidget {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      "Acción: ${item['accion'].toString().toUpperCase()}",
+                                      item.estado == 'encendido'
+                                      ? "Temperatura alta detectada"
+                                      : "Temperatura baja detectada",
                                       style: const TextStyle(
                                         color: Colors.white,
                                         fontWeight: FontWeight.bold,
                                       ),
                                     ),
                                     Text(
-                                      "Dispositivo: ${item['dispositivoId']}",
+                                      item.estado == 'encendido'
+                                      ? "Ventilación ENCENDIDA automáticamente"
+                                      : "Ventilación APAGADA automáticamente",
                                       style: const TextStyle(
                                         color: Colors.white70,
                                       ),
@@ -226,7 +238,7 @@ class VentilacionView extends ConsumerWidget {
                                     Text(
                                       "Fecha: $fecha",
                                       style: const TextStyle(
-                                        color: Colors.white70,
+                                       color: Colors.white70,
                                       ),
                                     ),
                                   ],

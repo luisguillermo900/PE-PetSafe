@@ -6,11 +6,26 @@ import 'package:intl/intl.dart';
 import '../../providers/providers.dart';
 import '../../services/firebase_service.dart';
 
-class IluminacionView extends ConsumerWidget {
+class IluminacionView extends ConsumerStatefulWidget {
   const IluminacionView({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<IluminacionView> createState() => _IluminacionViewState();
+}
+
+class _IluminacionViewState extends ConsumerState<IluminacionView> {
+  @override
+  void initState() {
+    super.initState();
+
+    // Cargar datos al abrir la vista
+    Future.microtask(() {
+      ref.read(alertasProvider.notifier).cargarAlertas();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final estado = ref.watch(iluminacionProvider);
     final vm = ref.read(iluminacionProvider.notifier);
    
@@ -200,7 +215,7 @@ class IluminacionView extends ConsumerWidget {
 
                 const SizedBox(height: 24),
                 const Text(
-                  "Historial de iluminación",
+                  "Historial de alertas",
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 18,
@@ -208,36 +223,30 @@ class IluminacionView extends ConsumerWidget {
                   ),
                 ),
                 const SizedBox(height: 12),
-
-                FutureBuilder<List<Map<String, dynamic>>>(
-                  future: FirebaseService.fetchHistorialIluminacion(),
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const Center(child: CircularProgressIndicator());
-                    } else if (snapshot.hasError) {
-                      return Text(
-                        "Error: ${snapshot.error}",
-                        style: const TextStyle(color: Colors.white),
-                      );
-                    } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                Consumer(
+                  builder: (context, ref, _) {
+                    final alertas = ref.watch(alertasProvider);
+                    final historial = alertas
+                      .where((a) => a.nombre == "iluminacion")
+                      .toList()
+                      .reversed
+                      .toList();
+                    print("Historial: $historial");
+                    if (historial.isEmpty) {
                       return const Text(
                         "No hay historial disponible.",
                         style: TextStyle(color: Colors.white70),
                       );
                     }
 
-                    final historial = snapshot.data!;
                     return ListView.builder(
                       shrinkWrap: true,
                       physics: const NeverScrollableScrollPhysics(),
                       itemCount: historial.length,
                       itemBuilder: (context, index) {
                         final item = historial[index];
-                        final fecha = DateFormat('dd/MM/yyyy – HH:mm').format(
-                          DateTime.fromMillisecondsSinceEpoch(
-                            item['timestamp'],
-                          ),
-                        );
+                        final fecha = item.tiempo;
+
                         return Container(
                           margin: const EdgeInsets.symmetric(vertical: 6),
                           padding: const EdgeInsets.all(12),
@@ -248,25 +257,29 @@ class IluminacionView extends ConsumerWidget {
                           child: Row(
                             children: [
                               Icon(
-                                item['accion'] == 'encender'
-                                    ? Icons.lightbulb
-                                    : Icons.lightbulb_outline,
+                                item.estado == 'encendido'
+                                  ? Icons.lightbulb
+                                  : Icons.lightbulb_outline,
                                 color: Colors.white,
                               ),
-                              const SizedBox(width: 12),
+                             const SizedBox(width: 12),
                               Expanded(
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      "Acción: ${item['accion'].toString().toUpperCase()}",
+                                      item.estado == 'encendido'
+                                      ? "Iluminación baja detectada"
+                                      : "Iluminación alta detectada",
                                       style: const TextStyle(
                                         color: Colors.white,
                                         fontWeight: FontWeight.bold,
                                       ),
                                     ),
                                     Text(
-                                      "Dispositivo: ${item['dispositivoId']}",
+                                      item.estado == 'encendido'
+                                      ? "Luz ENCENDIDA automáticamente"
+                                      : "Luz APAGADA automáticamente",
                                       style: const TextStyle(
                                         color: Colors.white70,
                                       ),
@@ -274,7 +287,7 @@ class IluminacionView extends ConsumerWidget {
                                     Text(
                                       "Fecha: $fecha",
                                       style: const TextStyle(
-                                        color: Colors.white70,
+                                       color: Colors.white70,
                                       ),
                                     ),
                                   ],

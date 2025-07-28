@@ -38,21 +38,16 @@ class SensoresNotifier extends StateNotifier<SensoresState> {
     final nuevaTemperatura = decoded['temperatura'];
     final nuevaHumedad = decoded['humedad'];
     final nuevaIluminancia = decoded['iluminancia'];
-    print("Temperatura: "+nuevaTemperatura);
-    print("Humedad: "+nuevaHumedad);
-    print("Iluminancia: "+nuevaIluminancia);
     
     // Solo emitir nuevo estado si hay un cambio real
     if (state.temperatura != nuevaTemperatura ||
     state.humedad != nuevaHumedad ||
     state.iluminancia != nuevaIluminancia) {
-      print("Emitiendo estado");
       state = state.copyWith(
         temperatura: nuevaTemperatura,
         humedad: nuevaHumedad,
         iluminancia: nuevaIluminancia,
       );
-      print("Estado emitido");
     }
   }
 }

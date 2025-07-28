@@ -194,7 +194,7 @@ class TemperaturaView extends ConsumerWidget {
 
                 const SizedBox(height: 24),
                 const Text(
-                  "Historial de temperatura y humedad",
+                  "Historial de alertas",
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 18,
@@ -204,35 +204,29 @@ class TemperaturaView extends ConsumerWidget {
 
                 const SizedBox(height: 12),
 
-                FutureBuilder<List<Map<String, dynamic>>>(
-                  future: FirebaseService.fetchHistorialTemperatura(),
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const Center(child: CircularProgressIndicator());
-                    } else if (snapshot.hasError) {
-                      return Text(
-                        "Error: ${snapshot.error}",
-                        style: const TextStyle(color: Colors.white),
-                      );
-                    } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                Consumer(
+                  builder: (context, ref, _) {
+                    final alertas = ref.watch(alertasProvider);
+                    final historial = alertas
+                      .where((a) => a.nombre == "ventilacion")
+                      .toList()
+                      .reversed
+                      .toList();
+                    if (historial.isEmpty) {
                       return const Text(
-                        "No hay datos.",
+                        "No hay historial disponible.",
                         style: TextStyle(color: Colors.white70),
                       );
                     }
 
-                    final historial = snapshot.data!;
                     return ListView.builder(
                       shrinkWrap: true,
                       physics: const NeverScrollableScrollPhysics(),
                       itemCount: historial.length,
                       itemBuilder: (context, index) {
                         final item = historial[index];
-                        final fecha = DateFormat('dd/MM/yyyy – HH:mm').format(
-                          DateTime.fromMillisecondsSinceEpoch(
-                            item['timestamp'],
-                          ),
-                        );
+                        final fecha = item.tiempo;
+
                         return Container(
                           margin: const EdgeInsets.symmetric(vertical: 6),
                           padding: const EdgeInsets.all(12),
@@ -242,23 +236,36 @@ class TemperaturaView extends ConsumerWidget {
                           ),
                           child: Row(
                             children: [
-                              const Icon(Icons.thermostat, color: Colors.white),
+                              Icon(
+                                Icons.thermostat,
+                                color: item.estado == 'encendido' ? Colors.red : Colors.blue,
+                              ),
                               const SizedBox(width: 12),
                               Expanded(
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      "${item['temperatura']} °C | Humedad: ${item['humedad']}%",
+                                      item.estado == 'encendido'
+                                      ? "Temperatura alta detectada"
+                                      : "Temperatura baja detectada",
                                       style: const TextStyle(
                                         color: Colors.white,
                                         fontWeight: FontWeight.bold,
                                       ),
                                     ),
                                     Text(
-                                      "Fecha: $fecha",
+                                      item.estado == 'encendido'
+                                      ? "Calefacción APAGADA automáticamente"
+                                      : "Calefacción ENCENDIDA automáticamente",
                                       style: const TextStyle(
                                         color: Colors.white70,
+                                      ),
+                                    ),
+                                    Text(
+                                      "Fecha: $fecha",
+                                      style: const TextStyle(
+                                       color: Colors.white70,
                                       ),
                                     ),
                                   ],
