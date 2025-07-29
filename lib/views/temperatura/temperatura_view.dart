@@ -72,18 +72,57 @@ class TemperaturaView extends ConsumerWidget {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         const Icon(
-                          Icons.wb_cloudy,
+                          Icons.wb_sunny_rounded,
                           size: 60,
-                          color: Colors.white,
+                          color: Colors.yellow,
                         ),
                         const SizedBox(height: 12),
-                        Text(
-                          '${ref.watch(sensoresProvider.select((s) => s.temperatura))} °C',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 20,
-                          ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              '${ref.watch(sensoresProvider.select((s) => s.temperatura.substring(0,2)))}',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 28,
+                                fontWeight: FontWeight.w200,
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.only(top: 5),
+                              child: Text(
+                                ' °C',
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w300,
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
+                        SizedBox(height: 3),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // Icon(
+                            //   Icons.thermostat_rounded,
+                            //   size: 20,
+                            //   color: Color.fromARGB(255, 123, 186, 241),
+                            // ),
+                            Text(
+                              'Humedad: ${ref.watch(sensoresProvider.select((s) => s.humedad.substring(0, 2)))}/100',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 13,
+                                fontWeight: FontWeight.w300,
+                              ),
+                            ),
+                          ],
+                        ),
+
                         //TemperatureView(),
                       ],
                     ),
@@ -94,16 +133,19 @@ class TemperaturaView extends ConsumerWidget {
 
                 Center(
                   child: ElevatedButton(
-                    onPressed: (){
+                    onPressed: () {
                       viewModel.toggleCalefaccion();
                       final bloc = ref.watch(awsIotBlocProvider);
                       final mensaje = jsonEncode({
                         'ventilacionManual': true,
-                        'ventilacionEncendida': temperaturaState.calefaccionActiva
+                        'ventilacionEncendida':
+                            temperaturaState.calefaccionActiva,
                       });
                       if (bloc == null) {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('No conectado a AWS IoT')),
+                          const SnackBar(
+                            content: Text('No conectado a AWS IoT'),
+                          ),
                         );
                         return;
                       }
@@ -129,16 +171,19 @@ class TemperaturaView extends ConsumerWidget {
 
                 Center(
                   child: ElevatedButton(
-                    onPressed: (){
+                    onPressed: () {
                       viewModel.activarModoAutomatico();
                       final bloc = ref.watch(awsIotBlocProvider);
                       final mensaje = jsonEncode({
                         'ventilacionManual': false,
-                        'ventilacionEncendida': temperaturaState.calefaccionActiva
+                        'ventilacionEncendida':
+                            temperaturaState.calefaccionActiva,
                       });
                       if (bloc == null) {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('No conectado a AWS IoT')),
+                          const SnackBar(
+                            content: Text('No conectado a AWS IoT'),
+                          ),
                         );
                         return;
                       }
@@ -207,11 +252,12 @@ class TemperaturaView extends ConsumerWidget {
                 Consumer(
                   builder: (context, ref, _) {
                     final alertas = ref.watch(alertasProvider);
-                    final historial = alertas
-                      .where((a) => a.nombre == "ventilacion")
-                      .toList()
-                      .reversed
-                      .toList();
+                    final historial =
+                        alertas
+                            .where((a) => a.nombre == "ventilacion")
+                            .toList()
+                            .reversed
+                            .toList();
                     if (historial.isEmpty) {
                       return const Text(
                         "No hay historial disponible.",
@@ -238,7 +284,10 @@ class TemperaturaView extends ConsumerWidget {
                             children: [
                               Icon(
                                 Icons.thermostat,
-                                color: item.estado == 'encendido' ? Colors.red : Colors.blue,
+                                color:
+                                    item.estado == 'encendido'
+                                        ? Colors.red
+                                        : Colors.blue,
                               ),
                               const SizedBox(width: 12),
                               Expanded(
@@ -247,8 +296,8 @@ class TemperaturaView extends ConsumerWidget {
                                   children: [
                                     Text(
                                       item.estado == 'encendido'
-                                      ? "Temperatura alta detectada"
-                                      : "Temperatura baja detectada",
+                                          ? "Temperatura alta detectada"
+                                          : "Temperatura baja detectada",
                                       style: const TextStyle(
                                         color: Colors.white,
                                         fontWeight: FontWeight.bold,
@@ -256,8 +305,8 @@ class TemperaturaView extends ConsumerWidget {
                                     ),
                                     Text(
                                       item.estado == 'encendido'
-                                      ? "Calefacción APAGADA automáticamente"
-                                      : "Calefacción ENCENDIDA automáticamente",
+                                          ? "Calefacción APAGADA automáticamente"
+                                          : "Calefacción ENCENDIDA automáticamente",
                                       style: const TextStyle(
                                         color: Colors.white70,
                                       ),
@@ -265,7 +314,7 @@ class TemperaturaView extends ConsumerWidget {
                                     Text(
                                       "Fecha: $fecha",
                                       style: const TextStyle(
-                                       color: Colors.white70,
+                                        color: Colors.white70,
                                       ),
                                     ),
                                   ],
