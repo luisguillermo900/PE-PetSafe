@@ -35,7 +35,6 @@ class DynamodbService {
           timestamp: int.tryParse(payload['timestamp'].toString()) ?? 0,
         ));
       }
-      print(alertas[0]);
       return alertas;
     } else {
       throw Exception('Error al obtener alertas: ${response.statusCode}');

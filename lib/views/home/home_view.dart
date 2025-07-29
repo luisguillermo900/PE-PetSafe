@@ -241,7 +241,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
                   // onTap: () => ref.read(homeProvider.notifier).state = 1,
                   context,
                   label:
-                      '${ref.watch(sensoresProvider.select((s) => s.temperatura.substring(0, 2)))} °C\nHR: ${ref.watch(sensoresProvider.select((s) => s.humedad.substring(0, 2)))} %',
+                      '${ref.watch(sensoresProvider.select((s) => s.temperatura))} °C\nHR: ${ref.watch(sensoresProvider.select((s) => s.humedad))} %',
                   icon: Icons.thermostat,
                   onTap: () => ref.read(homeProvider.notifier).state = 1,
                 ),

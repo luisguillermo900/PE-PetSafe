@@ -1,5 +1,4 @@
-import 'dart:convert';
-
+import 'package:intl/intl.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../services/dynamoDB_service.dart';
 import '../models/dispositivos_state.dart';
@@ -10,7 +9,9 @@ class AlertasNotifier extends StateNotifier<List<DispositivosState>> {
   AlertasNotifier(this.servicio) : super([]) {}
 
   Future<void> cargarAlertas() async {
-    state = await DynamodbService.obtenerAlertas("esp32-01","28/07/25");
+    DateTime hoy = DateTime.now();
+    String fechaFormateada = DateFormat('dd/MM/yy').format(hoy);
+    state = await DynamodbService.obtenerAlertas("esp32-01",fechaFormateada);
     print("Alertas cargadas");
     print('Lista: $state');
   }
