@@ -176,12 +176,13 @@ class _HomeViewState extends ConsumerState<HomeView> {
                     "mas",
                     style: TextStyle(color: Colors.white, fontSize: 16),
                   ),
-                  itemBuilder: (context) => const [
-                    PopupMenuItem<String>(
-                      value: 'logout',
-                      child: Text("Cerrar sesión"),
-                    ),
-                  ],
+                  itemBuilder:
+                      (context) => const [
+                        PopupMenuItem<String>(
+                          value: 'logout',
+                          child: Text("Cerrar sesión"),
+                        ),
+                      ],
                 ),
               ],
             ),
@@ -233,33 +234,42 @@ class _HomeViewState extends ConsumerState<HomeView> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Expanded(
-      child: _widgetCard(
-        context,
-        label: temperatura.calefaccionActiva ? "Calefaccion\nEncendida" : "Calefaccion\nApagada",
-        icon: Icons.thermostat,
-        onTap: () => ref.read(homeProvider.notifier).state = 1,
-      ),
-    ),
-    SizedBox(width: 8), // opcional, para un poco de espacio horizontal entre cards
-    Expanded(
-      child: _widgetCard(
-        context,
-        label: iluminacion.luzActiva ? "Luz\nEncendida" : "Luz\nApagada",
-        icon: Icons.lightbulb_outline,
-        onTap: () => ref.read(homeProvider.notifier).state = 2,
-      ),
-    ),
-    SizedBox(width: 8),
-    Expanded(
-      child: _widgetCard(
-        context,
-        label: ventilacion.ventiladorActivo
-            ? "Ventilador\nActivo"
-            : "Ventilador\nApagado",
-        icon: Icons.air,
-        onTap: () => ref.read(homeProvider.notifier).state = 3,
-      ),
-    ),
+                child: _widgetCard(
+                  // context,
+                  // label: temperatura.calefaccionActiva ? "Calefaccion\nEncendida" : "Calefaccion\nApagada",
+                  // icon: Icons.thermostat,
+                  // onTap: () => ref.read(homeProvider.notifier).state = 1,
+                  context,
+                  label:
+                      '${ref.watch(sensoresProvider.select((s) => s.temperatura.substring(0, 2)))} °C\nHR: ${ref.watch(sensoresProvider.select((s) => s.humedad.substring(0, 2)))} %',
+                  icon: Icons.thermostat,
+                  onTap: () => ref.read(homeProvider.notifier).state = 1,
+                ),
+              ),
+              SizedBox(
+                width: 8,
+              ), // opcional, para un poco de espacio horizontal entre cards
+              Expanded(
+                child: _widgetCard(
+                  context,
+                  label:
+                      iluminacion.luzActiva ? "Luz\nEncendida" : "Luz\nApagada",
+                  icon: iluminacion.luzActiva ? Icons.lightbulb_rounded : Icons.lightbulb_outline,
+                  onTap: () => ref.read(homeProvider.notifier).state = 2,
+                ),
+              ),
+              SizedBox(width: 8),
+              Expanded(
+                child: _widgetCard(
+                  context,
+                  label:
+                      ventilacion.ventiladorActivo
+                          ? "Ventilador\nActivo"
+                          : "Ventilador\nApagado",
+                  icon: Icons.air,
+                  onTap: () => ref.read(homeProvider.notifier).state = 3,
+                ),
+              ),
             ],
           ),
 
@@ -322,11 +332,13 @@ class _HomeViewState extends ConsumerState<HomeView> {
           const SizedBox(height: 12),
 
           if (eventosHoy.isNotEmpty)
-            ...eventosHoy.map((evento) => _historialItem(
-                  icon: Icons.calendar_today,
-                  titulo: evento.titulo,
-                  subtitulo: "${evento.descripcion} - ${evento.fecha}",
-                ))
+            ...eventosHoy.map(
+              (evento) => _historialItem(
+                icon: Icons.calendar_today,
+                titulo: evento.titulo,
+                subtitulo: "${evento.descripcion} - ${evento.fecha}",
+              ),
+            )
           else
             _historialItem(
               icon: Icons.info_outline,
@@ -362,7 +374,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
             Text(
               label,
               textAlign: TextAlign.center,
-              style: const TextStyle(color: Colors.white, fontSize: 12),
+              style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w300),
             ),
           ],
         ),

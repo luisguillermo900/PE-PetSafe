@@ -28,7 +28,7 @@ class _IluminacionViewState extends ConsumerState<IluminacionView> {
   Widget build(BuildContext context) {
     final estado = ref.watch(iluminacionProvider);
     final vm = ref.read(iluminacionProvider.notifier);
-   
+
     return Scaffold(
       backgroundColor: const Color(0xFF0F5C94),
       body: SafeArea(
@@ -90,15 +90,36 @@ class _IluminacionViewState extends ConsumerState<IluminacionView> {
                               ? Icons.lightbulb
                               : Icons.lightbulb_outline,
                           size: 60,
-                          color: Colors.white,
+                          color:
+                              estado.luzActiva
+                                  ? Colors.yellow[600]
+                                  : Colors.white, //Colors.white,
                         ),
                         const SizedBox(height: 12),
-                        Text(
-                          '${ref.watch(sensoresProvider.select((s) => s.iluminancia))} lx',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 20,
-                          ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            Text(
+                              '${ref.watch(sensoresProvider.select((s) => s.iluminancia))}',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 25,
+                                fontWeight: FontWeight.w200,
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.only(bottom: 4.5),
+                              child: Text(
+                                ' lx',
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w200,
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       ],
                     ),
@@ -112,17 +133,19 @@ class _IluminacionViewState extends ConsumerState<IluminacionView> {
                   child: ElevatedButton(
                     onPressed: () {
                       vm.toggleLuz();
-                      
+
                       // Luego, envía el mensaje JSON a través del bloc
                       final bloc = ref.watch(awsIotBlocProvider);
                       final nuevoEstado = ref.read(iluminacionProvider);
                       final mensaje = jsonEncode({
                         'iluminacionManual': true,
-                        'iluminacionEncendida': nuevoEstado.luzActiva
+                        'iluminacionEncendida': nuevoEstado.luzActiva,
                       });
                       if (bloc == null) {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('No conectado a AWS IoT')),
+                          const SnackBar(
+                            content: Text('No conectado a AWS IoT'),
+                          ),
                         );
                         return;
                       }
@@ -153,16 +176,17 @@ class _IluminacionViewState extends ConsumerState<IluminacionView> {
                       final bloc = ref.watch(awsIotBlocProvider);
                       final mensaje = jsonEncode({
                         'iluminacionManual': false,
-                        'iluminacionEncendida': estado.luzActiva
+                        'iluminacionEncendida': estado.luzActiva,
                       });
                       if (bloc == null) {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('No conectado a AWS IoT')),
+                          const SnackBar(
+                            content: Text('No conectado a AWS IoT'),
+                          ),
                         );
                         return;
                       }
                       bloc.add(AwsIotSendMessage(mensaje));
-                      
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF4CA6FF),
@@ -226,11 +250,12 @@ class _IluminacionViewState extends ConsumerState<IluminacionView> {
                 Consumer(
                   builder: (context, ref, _) {
                     final alertas = ref.watch(alertasProvider);
-                    final historial = alertas
-                      .where((a) => a.nombre == "iluminacion")
-                      .toList()
-                      .reversed
-                      .toList();
+                    final historial =
+                        alertas
+                            .where((a) => a.nombre == "iluminacion")
+                            .toList()
+                            .reversed
+                            .toList();
                     print("Historial: $historial");
                     if (historial.isEmpty) {
                       return const Text(
@@ -258,19 +283,19 @@ class _IluminacionViewState extends ConsumerState<IluminacionView> {
                             children: [
                               Icon(
                                 item.estado == 'encendido'
-                                  ? Icons.lightbulb
-                                  : Icons.lightbulb_outline,
+                                    ? Icons.lightbulb
+                                    : Icons.lightbulb_outline,
                                 color: Colors.white,
                               ),
-                             const SizedBox(width: 12),
+                              const SizedBox(width: 12),
                               Expanded(
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
                                       item.estado == 'encendido'
-                                      ? "Iluminación baja detectada"
-                                      : "Iluminación alta detectada",
+                                          ? "Iluminación baja detectada"
+                                          : "Iluminación alta detectada",
                                       style: const TextStyle(
                                         color: Colors.white,
                                         fontWeight: FontWeight.bold,
@@ -278,8 +303,8 @@ class _IluminacionViewState extends ConsumerState<IluminacionView> {
                                     ),
                                     Text(
                                       item.estado == 'encendido'
-                                      ? "Luz ENCENDIDA automáticamente"
-                                      : "Luz APAGADA automáticamente",
+                                          ? "Luz ENCENDIDA automáticamente"
+                                          : "Luz APAGADA automáticamente",
                                       style: const TextStyle(
                                         color: Colors.white70,
                                       ),
@@ -287,7 +312,7 @@ class _IluminacionViewState extends ConsumerState<IluminacionView> {
                                     Text(
                                       "Fecha: $fecha",
                                       style: const TextStyle(
-                                       color: Colors.white70,
+                                        color: Colors.white70,
                                       ),
                                     ),
                                   ],

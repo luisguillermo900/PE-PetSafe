@@ -82,7 +82,7 @@ class TemperaturaView extends ConsumerWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              '${ref.watch(sensoresProvider.select((s) => s.temperatura.substring(0,2)))}',
+                              ref.watch(sensoresProvider.select((s) => s.temperatura.substring(0,2))),
                               style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 28,
@@ -90,7 +90,7 @@ class TemperaturaView extends ConsumerWidget {
                               ),
                             ),
                             Padding(
-                              padding: const EdgeInsets.only(top: 5),
+                              padding: const EdgeInsets.only(top: 5.5),
                               child: Text(
                                 ' °C',
                                 style: const TextStyle(
@@ -107,13 +107,8 @@ class TemperaturaView extends ConsumerWidget {
                           mainAxisAlignment: MainAxisAlignment.center,
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            // Icon(
-                            //   Icons.thermostat_rounded,
-                            //   size: 20,
-                            //   color: Color.fromARGB(255, 123, 186, 241),
-                            // ),
                             Text(
-                              'Humedad: ${ref.watch(sensoresProvider.select((s) => s.humedad.substring(0, 2)))}/100',
+                              'HR: ${ref.watch(sensoresProvider.select((s) => s.humedad.substring(0, 2)))}%',
                               style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 13,
