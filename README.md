@@ -1,4 +1,4 @@
- PetSafe - Sistema de Monitoreo y Control IoT para Mascotas
+# PetSafe - Sistema de Monitoreo y Control IoT para Mascotas
 
 ## Objetivo General
 Desarrollar una aplicación móvil multiplataforma con **Flutter** que permita monitorear y controlar en tiempo real el entorno de mascotas mediante dispositivos IoT y servicios de cloud computing, para garantizar su seguridad, comodidad y bienestar en ausencia de sus dueños.
@@ -36,7 +36,7 @@ flutter pub get
 ## Enlace Firebase
 [https://petsafe-78c00-default-rtdb.firebaseio.com/.json](https://petsafe-78c00-default-rtdb.firebaseio.com/.json)
 
-Firebase se utiliza para **historiales** y **lecturas de sensores**.
+Firebase se utiliza para **autenticación**, **gestión de usuarios**, **historiales** y **lecturas de sensores**.
 
 ---
 
@@ -57,40 +57,70 @@ El sistema integra **Flutter**, **AWS**, **Firebase** y **dispositivos IoT (ESP3
 
 ---
 
+## Funcionalidad de la Aplicación
+
+### **Pantalla de Inicio de Sesión**
+Permite al usuario ingresar con credenciales registradas para acceder al sistema.
+![Pantalla Login](docs/images/petsafe_login.png)
+
+---
+
+### **Pantalla Principal (Home)**
+Muestra el estado general de los sensores y accesos a módulos principales.
+![Pantalla Home](docs/images/petsafe_home.png)
+
+---
+
+### **Monitoreo de Temperatura**
+Visualiza en tiempo real los datos de temperatura del entorno.
+![Temperatura](docs/images/petsafe_temperatura.png)
+
+---
+
+### **Control de Luz**
+Permite encender y apagar la iluminación desde la app.
+![Control de Luz](docs/images/petsafe_luz.png)
+
+---
+
+### **Módulo de Ventilación**
+Controla la ventilación en el espacio donde se encuentra la mascota.
+![Ventilación](docs/images/petsafe_ventilacion.png)
+
+---
+
+### **Calendario**
+Permite gestionar eventos relacionados con el cuidado de la mascota.
+![Calendario](docs/images/petsafe_calendario.png)
+
+---
+
+### **Hardware IoT**
+Este es el prototipo físico basado en ESP32, sensores y relés que permiten la automatización.
+![Hardware Proyecto](docs/images/petsafe_proyecto.jpeg)
+
+---
+
 ## Diagramas
 
-### Diagrama de Contexto
-![Diagrama de Contexto]()
-
-Este diagrama muestra al **usuario** interactuando con la **aplicación móvil**, que se comunica con **AWS (API Gateway, IoT Core, Lambda, DynamoDB)** y **Firebase**. El **ESP32** envía datos y recibe comandos.
+### **Diagrama de Contexto**
+![Diagrama de Contexto](docs/images/diagrama_contexto.jpeg)
 
 ---
 
-### Diagrama de Contenedores
-![Diagrama de Contenedores]()
-
-El diagrama detalla:
-- **UI móvil en Flutter** con lógica reactiva (MVVM).
-- **AWS IoT Bloc** (suscripción MQTT).
-- **Cliente API** (consultas HTTP a AWS API Gateway).
-- **Firebase** para autenticación y datos de usuario.
+### **Diagrama de Contenedores**
+![Diagrama de Contenedores](docs/images/diagrama_contenedores.jpeg)
 
 ---
 
-### Diagrama de Clases IoT con App Móvil
-![Diagrama de Clases]()
-
-Muestra las clases:
-- **ControladorSensores**
-- **GestorUsuarios**
-- **ComunicaciónMQTT**
-- **Mascota** (estado, ubicación, actividad)
+### **Diagrama de Clases IoT con App Móvil**
+![Diagrama de Clases](docs/images/diagrama_clases.png)
 
 ---
 
 ## Instalador APK
-En el repositorio se encontrará el archivo:  
-``
+En el repositorio encontrarás el archivo:  
+`/release/app-release.apk`
 
 ---
 
@@ -108,7 +138,7 @@ En el repositorio se encontrará el archivo:
 ---
 
 ## Módulos de la Aplicación
-1. **Login & Registro**: Autenticación con Firebase.
+1. **Login**: Autenticación con las credenciales.
 2. **Home**: Panel principal con estado en tiempo real.
 3. **Monitoreo de Sensores**:
    - Temperatura
@@ -116,8 +146,8 @@ En el repositorio se encontrará el archivo:
    - Iluminación
    - Ventilación
 4. **Control IoT**: Activación de GPIO desde la app.
-5. **Historial**: Lecturas almacenadas en Firebase y DynamoDB.
-6. **Notificaciones**: Alertas configuradas para eventos críticos.
+5. **Calendario**: Planificación de actividades o recordatorios para la mascota.
+6. **Historial**: Lecturas almacenadas en Firebase y DynamoDB.
 
 ---
 
