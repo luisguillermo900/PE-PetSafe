@@ -60,41 +60,47 @@ El sistema integra **Flutter**, **AWS**, **Firebase** y **dispositivos IoT (ESP3
 
 ### **Pantalla de Inicio de Sesión**
 Permite al usuario ingresar con credenciales registradas para acceder al sistema.
+
 ![Pantalla Login](docs/images/petsafe_login.png)
 
 ---
 
 ### **Pantalla Principal (Home)**
 Muestra el estado general de los sensores y accesos a módulos principales.
+
 ![Pantalla Home](docs/images/petsafe_home.png)
 
 ---
 
 ### **Monitoreo de Temperatura**
 Visualiza en tiempo real los datos de temperatura del entorno.
+
 ![Temperatura](docs/images/petsafe_temperatura.png)
 
 ---
 
 ### **Control de Luz**
 Permite encender y apagar la iluminación desde la app.
+
 ![Control de Luz](docs/images/petsafe_luz.png)
 
 ---
 
 ### **Módulo de Ventilación**
 Controla la ventilación en el espacio donde se encuentra la mascota.
+
 ![Ventilación](docs/images/petsafe_ventilacion.png)
 
 ---
 
 ### **Calendario**
 Permite gestionar eventos relacionados con el cuidado de la mascota.
+
 ![Calendario](docs/images/petsafe_calendario.png)
 
 ---
 
-### **Hardware IoT**
+## **Hardware IoT**
 El sistema está basado en un **ESP32** con los siguientes componentes:
 - **Sensor DHT11:** Lectura de temperatura y humedad.
 - **Sensor BH1750:** Medición de iluminancia.
@@ -104,10 +110,29 @@ El sistema está basado en un **ESP32** con los siguientes componentes:
 
 ---
 
+### **Comportamiento del ESP32**
+
+El ESP32 se encarga de recolectar datos de sensores y controlar dispositivos a través de relés. Ademas de publicar esos datos y recibir comandos a traves de AWS IoT.
+El código que controla el ESP32 se encuentra en la carpeta [`esp32/mqtt_esp32/`](./esp32/mqtt_esp32/).
+
+- [`mqtt_esp32.ino`](./esp32/mqtt_esp32/mqtt_esp32.ino) Contiene la lógica principal del ESP32: lectura de sensores, publicación de datos y control de relés.
+- [`secrets.c`](./esp32/mqtt_esp32/secrets.c) Almacena credenciales y configuraciones necesarias para conectar el ESP32 con AWS IoT Core (como endpoint, certificados y claves privadas).
+
+---
+
 ### **Monitoreo en Tiempo Real**
 - **Temperatura y Humedad:** Datos obtenidos mediante el sensor **DHT11**.
 - **Iluminación:** Medida por el sensor **BH1750** (iluminancia en lux).
 - **Ventilación:** Estado controlado a través de relé conectado al ESP32.
+
+---
+### **Topics MQTT usados**
+| Topic  | Descripcion |
+| ------------- | ------------- |
+| esp32/control_reles | La app publica comandos para encender o apagar los dispositivos conectados |
+| esp32/datos_esp32 | El ESP32 publica lecturas cada 2s (iluminancia, temperatura, humedad) |
+| esp32/datos_persistente_esp32 | El ESP32 publica cada 5min lecturas que deben ser almacenadas en DynamoDB. |
+| esp32/estado_reles | El ESP32 publica el estado actual (encendido/apagado) de los dispositivos cuando hay un cambio |
 
 ---
 
