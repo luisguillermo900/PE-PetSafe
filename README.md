@@ -36,7 +36,7 @@ flutter pub get
 ## Enlace Firebase
 [https://petsafe-78c00-default-rtdb.firebaseio.com/.json](https://petsafe-78c00-default-rtdb.firebaseio.com/.json)
 
-Firebase se utiliza para **autenticación**, **gestión de usuarios**, **historiales** y **lecturas de sensores**.
+Firebase se utiliza para **historiales** y **lecturas de sensores**.
 
 ---
 
@@ -52,7 +52,6 @@ El sistema integra **Flutter**, **AWS**, **Firebase** y **dispositivos IoT (ESP3
   - **DynamoDB**: Almacenamiento histórico.
 - **Firebase**:
   - **Realtime Database**: Gestión de datos en tiempo real.
-  - **Auth**: Autenticación segura.
 - **IoT Device (ESP32)**: Captura datos de sensores y ejecuta comandos (GPIO, PWM, etc.).
 
 ---
@@ -96,8 +95,19 @@ Permite gestionar eventos relacionados con el cuidado de la mascota.
 ---
 
 ### **Hardware IoT**
-Este es el prototipo físico basado en ESP32, sensores y relés que permiten la automatización.
+El sistema está basado en un **ESP32** con los siguientes componentes:
+- **Sensor DHT11:** Lectura de temperatura y humedad.
+- **Sensor BH1750:** Medición de iluminancia.
+- **Módulo Relé:** Control de luz y ventilación.
+- **Protoboard y cableado.**
 ![Hardware Proyecto](docs/images/petsafe_proyecto.jpeg)
+
+---
+
+### **Monitoreo en Tiempo Real**
+- **Temperatura y Humedad:** Datos obtenidos mediante el sensor **DHT11**.
+- **Iluminación:** Medida por el sensor **BH1750** (iluminancia en lux).
+- **Ventilación:** Estado controlado a través de relé conectado al ESP32.
 
 ---
 
@@ -119,8 +129,11 @@ Este es el prototipo físico basado en ESP32, sensores y relés que permiten la 
 ---
 
 ## Instalador APK
-En el repositorio encontrarás el archivo:  
-`/release/app-release.apk`
+El instalador se encuentra en la carpeta: 
+[Descargar PetSafe-app-release.apk](release/PetSafe-app-release.apk)
+**Para descargarlo desde GitHub:**
+1. Haz clic en el archivo **PetSafe-app-release.apk** en la carpeta `release`.
+2. Luego, presiona **View raw** para iniciar la descarga.
 
 ---
 
@@ -156,7 +169,6 @@ En el repositorio encontrarás el archivo:
 - **Backend**: AWS Lambda, API Gateway.
 - **Base de Datos**: Firebase Realtime Database y DynamoDB.
 - **Protocolo IoT**: MQTT sobre AWS IoT Core.
-- **Autenticación**: Firebase Auth.
 
 ---
 
@@ -168,7 +180,10 @@ En el repositorio encontrarás el archivo:
 [https://petsafe-78c00-default-rtdb.firebaseio.com/.json](https://petsafe-78c00-default-rtdb.firebaseio.com/.json)
 
 ### Anexo 3: Ruta del Instalador APK
-En el repositorio se puede descargar directamente desde:  
+El instalador se encuentra en la carpeta: 
 [Descargar PetSafe-app-release.apk](release/PetSafe-app-release.apk)
+**Para descargarlo desde GitHub:**
+1. Haz clic en el archivo **PetSafe-app-release.apk** en la carpeta `release`.
+2. Luego, presiona **View raw** para iniciar la descarga.
 
 ---
