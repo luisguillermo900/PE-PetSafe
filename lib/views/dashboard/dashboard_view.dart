@@ -1,24 +1,17 @@
-import 'dart:convert';
-
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
-import 'package:lab04/views/dashboard/dashboard_view.dart';
-import 'package:lab04/views/temperatura/temperature_view.dart';
 import '../../providers/providers.dart';
-import '../../services/blocs/aws_iot_bloc.dart';
-import '../../services/firebase_service.dart';
 
-class TemperaturaView extends ConsumerStatefulWidget {
-  const TemperaturaView({super.key});
+class DashboardView extends ConsumerStatefulWidget {
+  const DashboardView({super.key});
 
   @override
-  ConsumerState<TemperaturaView> createState() => _TemperaturaViewState();
+  ConsumerState<DashboardView> createState() => _DashboardViewState();
 }
 
-class _TemperaturaViewState extends ConsumerState<TemperaturaView> {
-
+class _DashboardViewState extends ConsumerState<DashboardView> {
   @override
   void initState() {
     super.initState();
@@ -29,9 +22,6 @@ class _TemperaturaViewState extends ConsumerState<TemperaturaView> {
 
   @override
   Widget build(BuildContext context) {
-    final temperaturaState = ref.watch(temperaturaProvider);
-    final viewModel = ref.read(temperaturaProvider.notifier);
-
     final lecturas = ref.watch(lecturasStateProvider);
 
     if (lecturas.isEmpty) {
@@ -54,8 +44,12 @@ class _TemperaturaViewState extends ConsumerState<TemperaturaView> {
           double valorExistente = temperaturasPorHora[hora]!;
           temperaturasPorHora[hora] =
               esDia
-                  ? (temp > valorExistente ? temp : valorExistente)
-                  : (temp < valorExistente ? temp : valorExistente);
+                  ? (temp > valorExistente
+                      ? temp
+                      : valorExistente) 
+                  : (temp < valorExistente
+                      ? temp
+                      : valorExistente);
         }
       } catch (e) {
         print('Error de fecha: ${lectura.tiempo}');
@@ -74,13 +68,12 @@ class _TemperaturaViewState extends ConsumerState<TemperaturaView> {
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
           child: SingleChildScrollView(
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     const Text(
-                      "Temperatura",
+                      "Dashboard",
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 20,
@@ -108,86 +101,9 @@ class _TemperaturaViewState extends ConsumerState<TemperaturaView> {
                     ),
                   ],
                 ),
-
-                const SizedBox(height: 30),
-
-                Center(
-                  child: Container(
-                    width: 200,
-                    height: 200,
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Icon(
-                          Icons.wb_sunny_rounded,
-                          size: 60,
-                          color: Colors.yellow,
-                        ),
-                        const SizedBox(height: 12),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              ref.watch(
-                                sensoresProvider.select((s) => s.temperatura),
-                              ),
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 28,
-                                fontWeight: FontWeight.w200,
-                              ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.only(top: 5.5),
-                              child: Text(
-                                '°C',
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w300,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        SizedBox(height: 3),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'HR: ${ref.watch(sensoresProvider.select((s) => s.humedad))}%',
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 13,
-                                fontWeight: FontWeight.w300,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-
-                const SizedBox(height: 30),
-
-                const Text(
-                  "Historial",
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-
-                const SizedBox(height: 12),
-
+    
+                SizedBox(height: 30),
+    
                 Container(
                   height: 300,
                   child: LineChart(

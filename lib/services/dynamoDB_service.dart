@@ -11,7 +11,9 @@ class DynamodbService {
 
     if (respuesta.statusCode == 200) {
       final List<dynamic> data = json.decode(respuesta.body);
-      return data.map<Lectura>((e) => Lectura.fromJson(e)).toList();
+      return data
+            .map((e) => Lectura.fromJson(Map<String, dynamic>.from(e)))
+            .toList();
     } else {
       throw Exception('Error al obtener datos: ${respuesta.statusCode}');
     }

@@ -1,6 +1,9 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:lab04/services/blocs/aws_iot_bloc.dart';
 import '../../providers/providers.dart';
 import '../../services/firebase_service.dart';
 
@@ -88,12 +91,32 @@ class _VentilacionViewState extends ConsumerState<VentilacionView> {
                           color: Colors.white,
                         ),
                         const SizedBox(height: 12),
-                        Text(
-                          '${ref.watch(sensoresProvider.select((s) => s.temperatura))} °C',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 20,
-                          ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              ref.watch(
+                                sensoresProvider.select((s) => s.temperatura),
+                              ),
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 28,
+                                fontWeight: FontWeight.w200,
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.only(top: 5.5),
+                              child: Text(
+                                '°C',
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w300,
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       ],
                     ),
@@ -102,9 +125,27 @@ class _VentilacionViewState extends ConsumerState<VentilacionView> {
                 const SizedBox(height: 30),
                 Center(
                   child: ElevatedButton(
-                    onPressed: vm.toggleVentilador,
+                    onPressed: () {
+                      vm.toggleVentilador();
+                      final bloc = ref.watch(awsIotBlocProvider);
+                      final nuevoEstado = ref.read(ventilacionProvider);
+                      final mensaje = jsonEncode({
+                        'ventilacionManual': true,
+                        'ventilacionEncendida': nuevoEstado.ventiladorActivo,
+                      });
+                      if (bloc == null) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('No conectado a AWS IoT'),
+                          ),
+                        );
+                        return;
+                      }
+                      bloc.add(AwsIotSendMessage(mensaje));
+                    },
+
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.green,
+                      backgroundColor: Colors.yellow.shade700,
                       minimumSize: const Size(200, 48),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(20),
@@ -118,10 +159,28 @@ class _VentilacionViewState extends ConsumerState<VentilacionView> {
                     ),
                   ),
                 ),
+
                 const SizedBox(height: 16),
+
                 Center(
                   child: ElevatedButton(
-                    onPressed: vm.activarModoAutomatico,
+                    onPressed: () {
+                      vm.activarModoAutomatico();
+                      final bloc = ref.watch(awsIotBlocProvider);
+                      final mensaje = jsonEncode({
+                        'ventilacionManual': false,
+                        'ventilacionEncendida': estado.ventiladorActivo,
+                      });
+                      if (bloc == null) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('No conectado a AWS IoT'),
+                          ),
+                        );
+                        return;
+                      }
+                      bloc.add(AwsIotSendMessage(mensaje));
+                    },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF4CA6FF),
                       minimumSize: const Size(200, 48),
@@ -129,10 +188,15 @@ class _VentilacionViewState extends ConsumerState<VentilacionView> {
                         borderRadius: BorderRadius.circular(20),
                       ),
                     ),
-                    child: const Text("Modo Automático"),
+                    child: const Text(
+                      "Modo Automático",
+                      style: TextStyle(color: Colors.white),
+                    ),
                   ),
                 ),
+
                 const SizedBox(height: 30),
+
                 Container(
                   width: double.infinity,
                   padding: const EdgeInsets.all(16),
@@ -167,7 +231,9 @@ class _VentilacionViewState extends ConsumerState<VentilacionView> {
                     ],
                   ),
                 ),
+
                 const SizedBox(height: 24),
+
                 const Text(
                   "Historial de ventilación",
                   style: TextStyle(
@@ -180,11 +246,12 @@ class _VentilacionViewState extends ConsumerState<VentilacionView> {
                 Consumer(
                   builder: (context, ref, _) {
                     final alertas = ref.watch(alertasProvider);
-                    final historial = alertas
-                      .where((a) => a.nombre == "ventilacion")
-                      .toList()
-                      .reversed
-                      .toList();
+                    final historial =
+                        alertas
+                            .where((a) => a.nombre == "ventilacion")
+                            .toList()
+                            .reversed
+                            .toList();
                     if (historial.isEmpty) {
                       return const Text(
                         "No hay historial disponible.",
@@ -211,7 +278,10 @@ class _VentilacionViewState extends ConsumerState<VentilacionView> {
                             children: [
                               Icon(
                                 Icons.thermostat,
-                                color: item.estado == 'encendido' ? Colors.red : Colors.blue,
+                                color:
+                                    item.estado == 'encendido'
+                                        ? Colors.red
+                                        : Colors.blue,
                               ),
                               const SizedBox(width: 12),
                               Expanded(
@@ -220,8 +290,8 @@ class _VentilacionViewState extends ConsumerState<VentilacionView> {
                                   children: [
                                     Text(
                                       item.estado == 'encendido'
-                                      ? "Temperatura alta detectada"
-                                      : "Temperatura baja detectada",
+                                          ? "Temperatura alta detectada"
+                                          : "Temperatura baja detectada",
                                       style: const TextStyle(
                                         color: Colors.white,
                                         fontWeight: FontWeight.bold,
@@ -229,8 +299,8 @@ class _VentilacionViewState extends ConsumerState<VentilacionView> {
                                     ),
                                     Text(
                                       item.estado == 'encendido'
-                                      ? "Ventilación ENCENDIDA automáticamente"
-                                      : "Ventilación APAGADA automáticamente",
+                                          ? "Ventilación ENCENDIDA automáticamente"
+                                          : "Ventilación APAGADA automáticamente",
                                       style: const TextStyle(
                                         color: Colors.white70,
                                       ),
@@ -238,7 +308,7 @@ class _VentilacionViewState extends ConsumerState<VentilacionView> {
                                     Text(
                                       "Fecha: $fecha",
                                       style: const TextStyle(
-                                       color: Colors.white70,
+                                        color: Colors.white70,
                                       ),
                                     ),
                                   ],

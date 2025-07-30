@@ -17,6 +17,7 @@ class Lectura {
 
   factory Lectura.fromJson(Map<String, dynamic> json) {
     final payload = json['payload'] ?? {};
+    print('Lectura:  $payload');
     return Lectura(
       idDispositivo: payload['id_dispositivo'] ?? '',
       iluminancia: double.tryParse(payload['iluminancia'].toString()) ?? 0,

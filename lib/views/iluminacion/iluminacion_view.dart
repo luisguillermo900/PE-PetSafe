@@ -93,7 +93,7 @@ class _IluminacionViewState extends ConsumerState<IluminacionView> {
                           color:
                               estado.luzActiva
                                   ? Colors.yellow[600]
-                                  : Colors.white, //Colors.white,
+                                  : Colors.white,
                         ),
                         const SizedBox(height: 12),
                         Row(
@@ -160,7 +160,10 @@ class _IluminacionViewState extends ConsumerState<IluminacionView> {
                     ),
                     child: Text(
                       estado.luzActiva ? "Apagar Luz" : "Encender Luz",
-                      style: const TextStyle(fontWeight: FontWeight.bold),
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Color.fromARGB(221, 61, 61, 61),
+                      ),
                     ),
                   ),
                 ),
@@ -195,7 +198,10 @@ class _IluminacionViewState extends ConsumerState<IluminacionView> {
                         borderRadius: BorderRadius.circular(20),
                       ),
                     ),
-                    child: const Text("Modo Automático"),
+                    child: const Text(
+                      "Modo Automático",
+                      style: TextStyle(color: Colors.white),
+                    ),
                   ),
                 ),
 

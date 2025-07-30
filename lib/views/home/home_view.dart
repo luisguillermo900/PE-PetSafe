@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:lab04/views/dashboard/dashboard_view.dart';
 import 'package:lab04/views/temperatura/temperatura_view.dart';
 import 'package:lab04/views/temperatura/temperature_view.dart';
 import 'package:lab04/services/blocs/aws_iot_bloc.dart';

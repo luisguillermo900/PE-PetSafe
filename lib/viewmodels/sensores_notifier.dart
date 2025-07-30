@@ -35,14 +35,17 @@ class SensoresNotifier extends StateNotifier<SensoresState> {
 
   void procesarPayload(String mensajeJson) {
     final decoded = jsonDecode(mensajeJson);
-    final nuevaTemperatura = decoded['temperatura'];
-    final nuevaHumedad = decoded['humedad'];
-    final nuevaIluminancia = decoded['iluminancia'];
+    String nuevaTemperatura = decoded['temperatura']?.toString() ?? '0';
+    String nuevaHumedad = decoded['humedad']?.toString() ?? '0';
+    String nuevaIluminancia = decoded['iluminancia']?.toString() ?? '0';
     
+    nuevaTemperatura = nuevaTemperatura.length >=2 ? nuevaTemperatura.substring(0,2) : '0';
+    nuevaHumedad = nuevaHumedad.length >=2 ? nuevaHumedad.substring(0,2) : '0';
+
     // Solo emitir nuevo estado si hay un cambio real
     if (state.temperatura != nuevaTemperatura ||
     state.humedad != nuevaHumedad ||
-    state.iluminancia != nuevaIluminancia) {
+    state.iluminancia != nuevaIluminancia) {  
       state = state.copyWith(
         temperatura: nuevaTemperatura,
         humedad: nuevaHumedad,

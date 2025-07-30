@@ -1,6 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:lab04/models/lectura_model.dart';
 import '../models/user_model.dart';
 import 'package:lab04/services/blocs/aws_iot_bloc.dart';
+import '../viewmodels/lecturas_notifier.dart';
 import '../viewmodels/login_viewmodel.dart';
 import '../viewmodels/home_viewmodel.dart';
 import '../viewmodels/temperatura_viewmodel.dart';
@@ -71,3 +73,9 @@ final alertasProvider = StateNotifierProvider<AlertasNotifier, List<Dispositivos
   final servicio = ref.read(dynamodbServiceProvider);
   return AlertasNotifier(servicio);
 });
+
+final lecturasStateProvider = StateNotifierProvider<LecturasNotifier, List<Lectura>>((ref) {
+  final servicios = ref.read(dynamodbServiceProvider);
+  return LecturasNotifier(servicios);
+}); 
+
