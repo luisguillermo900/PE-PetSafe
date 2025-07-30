@@ -167,4 +167,8 @@ En el repositorio encontrarás el archivo:
 ### Anexo 2: Enlace Firebase  
 [https://petsafe-78c00-default-rtdb.firebaseio.com/.json](https://petsafe-78c00-default-rtdb.firebaseio.com/.json)
 
+### Anexo 3: Ruta del Instalador APK
+En el repositorio se puede descargar directamente desde:  
+[Descargar PetSafe-app-release.apk](release/PetSafe-app-release.apk)
+
 ---
