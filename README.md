@@ -1,3 +1,140 @@
-# PROYECTO PETSAFE
+ PetSafe - Sistema de Monitoreo y Control IoT para Mascotas
 
+## Objetivo General
+Desarrollar una aplicación móvil multiplataforma con **Flutter** que permita monitorear y controlar en tiempo real el entorno de mascotas mediante dispositivos IoT y servicios de cloud computing, para garantizar su seguridad, comodidad y bienestar en ausencia de sus dueños.
 
+---
+
+## Requisitos Cumplidos
+a) La implementación del aplicativo está completamente funcional.  
+b) El código está disponible en GitHub.  
+c) La documentación sobre la funcionalidad y arquitectura está en este README.  
+d) Incluye la documentación necesaria para ejecutar el aplicativo (usuario y contraseña).  
+e) El instalador APK se encuentra en el repositorio.  
+
+---
+
+## Repositorio del Proyecto
+**GitHub:** [https://github.com/luisguillermo900/PE-PetSafe.git](https://github.com/luisguillermo900/PE-PetSafe.git)
+
+Clonar el proyecto y descargar dependencias:
+
+```bash
+git clone https://github.com/luisguillermo900/PE-PetSafe.git
+cd PE-PetSafe
+flutter pub get
+```
+
+---
+
+## Credenciales de Acceso
+- **Usuario:** admin  
+- **Contraseña:** 1234  
+
+---
+
+## Enlace Firebase
+[https://petsafe-78c00-default-rtdb.firebaseio.com/.json](https://petsafe-78c00-default-rtdb.firebaseio.com/.json)
+
+Firebase se utiliza para **historiales** y **lecturas de sensores**.
+
+---
+
+## Arquitectura del Sistema
+El sistema integra **Flutter**, **AWS**, **Firebase** y **dispositivos IoT (ESP32)** para ofrecer control y monitoreo en tiempo real.
+
+### Componentes Principales
+- **App Flutter (MVVM + Riverpod)**: Interfaz, lógica de presentación y comunicación con la nube.
+- **AWS Services**:
+  - **API Gateway**: Puerta de entrada para solicitudes HTTP.
+  - **IoT Core**: Gestión de dispositivos IoT y comunicación MQTT.
+  - **Lambda**: Procesamiento serverless de datos.
+  - **DynamoDB**: Almacenamiento histórico.
+- **Firebase**:
+  - **Realtime Database**: Gestión de datos en tiempo real.
+  - **Auth**: Autenticación segura.
+- **IoT Device (ESP32)**: Captura datos de sensores y ejecuta comandos (GPIO, PWM, etc.).
+
+---
+
+## Diagramas
+
+### Diagrama de Contexto
+![Diagrama de Contexto]()
+
+Este diagrama muestra al **usuario** interactuando con la **aplicación móvil**, que se comunica con **AWS (API Gateway, IoT Core, Lambda, DynamoDB)** y **Firebase**. El **ESP32** envía datos y recibe comandos.
+
+---
+
+### Diagrama de Contenedores
+![Diagrama de Contenedores]()
+
+El diagrama detalla:
+- **UI móvil en Flutter** con lógica reactiva (MVVM).
+- **AWS IoT Bloc** (suscripción MQTT).
+- **Cliente API** (consultas HTTP a AWS API Gateway).
+- **Firebase** para autenticación y datos de usuario.
+
+---
+
+### Diagrama de Clases IoT con App Móvil
+![Diagrama de Clases]()
+
+Muestra las clases:
+- **ControladorSensores**
+- **GestorUsuarios**
+- **ComunicaciónMQTT**
+- **Mascota** (estado, ubicación, actividad)
+
+---
+
+## Instalador APK
+En el repositorio se encontrará el archivo:  
+``
+
+---
+
+## Ejecución
+1. **Clonar el repositorio**  
+2. Ejecutar `flutter pub get` para instalar dependencias.  
+3. **Compilar el proyecto**:
+   ```bash
+   flutter run
+   ```
+4. **Ingresar con credenciales:**  
+   Usuario: `admin`  
+   Contraseña: `1234`
+
+---
+
+## Módulos de la Aplicación
+1. **Login & Registro**: Autenticación con Firebase.
+2. **Home**: Panel principal con estado en tiempo real.
+3. **Monitoreo de Sensores**:
+   - Temperatura
+   - Humedad
+   - Iluminación
+   - Ventilación
+4. **Control IoT**: Activación de GPIO desde la app.
+5. **Historial**: Lecturas almacenadas en Firebase y DynamoDB.
+6. **Notificaciones**: Alertas configuradas para eventos críticos.
+
+---
+
+## Tecnologías Utilizadas
+- **Frontend**: Flutter (Dart) con arquitectura **MVVM + Riverpod**.
+- **Backend**: AWS Lambda, API Gateway.
+- **Base de Datos**: Firebase Realtime Database y DynamoDB.
+- **Protocolo IoT**: MQTT sobre AWS IoT Core.
+- **Autenticación**: Firebase Auth.
+
+---
+
+## Anexos
+### Anexo 1: Repositorio GitHub  
+[https://github.com/luisguillermo900/PE-PetSafe.git](https://github.com/luisguillermo900/PE-PetSafe.git)
+
+### Anexo 2: Enlace Firebase  
+[https://petsafe-78c00-default-rtdb.firebaseio.com/.json](https://petsafe-78c00-default-rtdb.firebaseio.com/.json)
+
+---
